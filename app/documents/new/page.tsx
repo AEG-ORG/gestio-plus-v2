@@ -136,7 +136,7 @@ export default function NewDocumentPage() {
   const [language, setLanguage] = useState<Language>('fr')
   const t = translations[language]
 
-  const [template, setTemplate] = useState<'classic' | 'modern' | 'corporate'>('classic')
+  const [template, setTemplate] = useState<'classic' | 'modern' | 'corporate' | 'minimalist'>('minimalist')
 
   const [clientName, setClientName] = useState('Marie Philippe')
   const [clientCompany, setClientCompany] = useState('COGIP')
@@ -547,46 +547,57 @@ export default function NewDocumentPage() {
           </div>
 
           {/* SÉLECTEUR DE MODÈLE */}
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
-            <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-              <LayoutTemplate className="w-4 h-4 text-blue-600" /> Modèle de document
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setTemplate('classic')}
-                className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                  template === 'classic'
-                    ? 'bg-blue-600 text-white border-blue-600 shadow'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                Classique
-              </button>
-              <button
-                type="button"
-                onClick={() => setTemplate('modern')}
-                className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                  template === 'modern'
-                    ? 'bg-blue-600 text-white border-blue-600 shadow'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                Moderne
-              </button>
-              <button
-                type="button"
-                onClick={() => setTemplate('corporate')}
-                className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                  template === 'corporate'
-                    ? 'bg-blue-600 text-white border-blue-600 shadow'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                }`}
-              >
-                Corporate
-              </button>
-            </div>
-          </div>
+			<div className="p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
+			  <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+				<LayoutTemplate className="w-4 h-4 text-blue-600" /> Modèle de document
+			  </label>
+			  <div className="grid grid-cols-4 gap-1.5">
+				<button
+				  type="button"
+				  onClick={() => setTemplate('classic')}
+				  className={`py-2 px-2 rounded-lg text-xs font-semibold border transition ${
+					template === 'classic'
+					  ? 'bg-blue-600 text-white border-blue-600 shadow'
+					  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+				  }`}
+				>
+				  Classique
+				</button>
+				<button
+				  type="button"
+				  onClick={() => setTemplate('modern')}
+				  className={`py-2 px-2 rounded-lg text-xs font-semibold border transition ${
+					template === 'modern'
+					  ? 'bg-blue-600 text-white border-blue-600 shadow'
+					  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+				  }`}
+				>
+				  Moderne
+				</button>
+				<button
+				  type="button"
+				  onClick={() => setTemplate('corporate')}
+				  className={`py-2 px-2 rounded-lg text-xs font-semibold border transition ${
+					template === 'corporate'
+					  ? 'bg-blue-600 text-white border-blue-600 shadow'
+					  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+				  }`}
+				>
+				  Corporate
+				</button>
+				<button
+				  type="button"
+				  onClick={() => setTemplate('minimalist')}
+				  className={`py-2 px-2 rounded-lg text-xs font-semibold border transition ${
+					template === 'minimalist'
+					  ? 'bg-blue-600 text-white border-blue-600 shadow'
+					  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+				  }`}
+				>
+				  Minimaliste
+				</button>
+			  </div>
+			</div>
 
           <div className="grid grid-cols-3 gap-3 pb-2 border-b">
             <div>

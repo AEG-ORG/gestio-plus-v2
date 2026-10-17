@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { DocumentStatus, DocumentType } from '@/types'
 
 interface DocumentTemplateProps {
-  template: 'classic' | 'modern' | 'corporate'
+  template: 'classic' | 'modern' | 'corporate' | 'minimalist'
   type: DocumentType
   status: DocumentStatus
   companyName: string
@@ -49,11 +49,15 @@ export default function DocumentTemplate({
   return (
     <div
       className={`a4-page bg-white p-6 rounded-xl shadow-lg border text-gray-800 w-full flex flex-col justify-between relative ${
-        template === 'corporate' ? 'border-blue-800 border-2' : 'border-gray-200'
+        template === 'corporate'
+          ? 'border-blue-800 border-2'
+          : template === 'minimalist'
+          ? 'border-slate-300'
+          : 'border-gray-200'
       }`}
       style={{ minHeight: '297mm', boxSizing: 'border-box' }}
     >
-      {/* 1. EN-TÊTE ET ZONE CENTRALE */}
+      {/* 1. EN-TÊTE FIXE */}
       <div className="space-y-4">
         {template === 'classic' && (
           <div>
@@ -160,23 +164,58 @@ export default function DocumentTemplate({
           </div>
         )}
 
-        {documentDescription && (
-          <div className="text-xs bg-blue-50/30 py-1 px-2.5 rounded border border-blue-100">
-            <span className="font-bold uppercase tracking-wider mr-2 text-blue-900">{t.description} :</span>
-            <span className="text-gray-800 font-medium">{documentDescription}</span>
+        {/* --- NOVEAU 4ème MODÈLE : MINIMALISTE --- */}
+        {template === 'minimalist' && (
+          <div className="border-b border-gray-300 pb-4 mb-2">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-light tracking-wide text-slate-800 uppercase">
+                  {type === 'quote' ? t.quote : t.invoice}
+                </h1>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">{documentNumber}</p>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-sm text-slate-900 block">{companyName}</span>
+                <p className="text-[10px] text-slate-500">{companyAddress}</p>
+                <p className="text-[10px] text-slate-500">{companyPhone}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-xs mt-4 pt-3 border-t border-slate-100">
+              <div>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Destinataire</p>
+                <p className="font-semibold text-slate-800">{clientName} ({clientCompany})</p>
+                <p className="text-slate-600 text-[10px] whitespace-pre-line">{clientAddress}</p>
+              </div>
+              <div className="text-right space-y-0.5">
+                <p><span className="text-slate-400">Date d'émission :</span> {currentDate}</p>
+                <p><span className="text-slate-400">Date de validité :</span> {validUntilDate}</p>
+                <div className="mt-1 flex justify-end">{getStatusBadge(status)}</div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* ARTICLES ET TOTAUX */}
+        {documentDescription && (
+          <div className="text-xs bg-slate-50 py-1.5 px-3 rounded border border-slate-200">
+            <span className="font-bold uppercase tracking-wider mr-2 text-slate-700">{t.description} :</span>
+            <span className="text-slate-800 font-medium">{documentDescription}</span>
+          </div>
+        )}
+
+        {/* 2. ZONE CENTRALE LIBRE ET DYNAMIQUE */}
         <div className="space-y-4">
           {children}
         </div>
       </div>
 
-      {/* 2. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES (CALÉ EN BAS) */}
-      <div className="pt-3 mt-6 text-[10px] text-gray-700" style={{ borderTop: '2px solid #1e3a8a' }}>
+      {/* 3. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES */}
+      <div
+        className="pt-3 mt-6 text-[10px] text-gray-700"
+        style={{ borderTop: template === 'minimalist' ? '1px solid #94a3b8' : '2px solid #1e3a8a' }}
+      >
         <div className="mb-2">
-          <span className="font-bold uppercase tracking-wider text-blue-900">{t.conditions} :</span>{' '}
+          <span className="font-bold uppercase tracking-wider text-slate-800">{t.conditions} :</span>{' '}
           {conditions}
         </div>
 
