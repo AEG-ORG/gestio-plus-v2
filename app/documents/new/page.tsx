@@ -352,17 +352,25 @@ export default function NewDocumentPage() {
   @media print {
     @page {
       size: A4 portrait;
-      margin: 0;
+      margin: 0 !important;
+    }
+
+    *, *::before, *::after {
+      background: transparent !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
     }
 
     html, body {
       width: 210mm !important;
-      height: 100% !important;
+      height: 297mm !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: white !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      overflow: hidden !important;
     }
 
     .no-print {
@@ -371,34 +379,45 @@ export default function NewDocumentPage() {
 
     #printable-area {
       display: block !important;
-      position: static !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
       width: 210mm !important;
+      height: 297mm !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: white !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
       border: none !important;
       box-shadow: none !important;
     }
 
     .a4-page {
       width: 210mm !important;
-      min-height: 280mm !important;
-      max-height: 287mm !important;
+      height: 297mm !important;
       box-sizing: border-box !important;
-      padding: 10mm 15mm 15mm 15mm !important; /* Marge inférieure de 15mm pour sécuriser le pied de page */
+      padding: 12mm 15mm 12mm 15mm !important;
       margin: 0 !important;
       border: none !important;
       border-radius: 0 !important;
       box-shadow: none !important;
       outline: none !important;
-      background: white !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
+      overflow: hidden !important;
       page-break-after: always;
       page-break-inside: avoid;
+    }
+
+    /* Conserver les couleurs d'arrière-plan spécifiques pour les blocs bleus */
+    .bg-blue-800, [class*="bg-blue-"] {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     ::-webkit-scrollbar {
