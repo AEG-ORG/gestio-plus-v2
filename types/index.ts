@@ -54,3 +54,12 @@ export interface DocumentData {
   total_ttc: number
   created_at?: string
 }
+
+export type Language = 'fr' | 'es' | 'en'
+
+// Dans l'interface DocumentData, ajoute :
+export interface DocumentData {
+  // ...
+  language: Language
+  // ...
+}

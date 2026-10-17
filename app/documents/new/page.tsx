@@ -6,8 +6,6 @@ import {
   Item,
   CatalogProduct,
   DocumentStatus,
-  QuoteStatus,
-  InvoiceStatus,
   DocumentType,
   VatMode
 } from '@/types'
@@ -18,6 +16,7 @@ import {
   calculateTotalTtc,
   getStatusLabel
 } from '@/lib/document-utils'
+import { translations, Language } from '@/lib/i18n'
 import {
   Plus,
   Trash2,
@@ -36,6 +35,9 @@ export default function NewDocumentPage() {
   // Document State
   const [type, setType] = useState<DocumentType>('quote')
   const [status, setStatus] = useState<DocumentStatus>('draft')
+  const [language, setLanguage] = useState<Language>('fr')
+  const t = translations[language]
+
   const [clientName, setClientName] = useState('Marie Philippe')
   const [clientCompany, setClientCompany] = useState('COGIP')
   const [clientAddress, setClientAddress] = useState('13, quai Branly\n75002 Paris')
@@ -91,13 +93,11 @@ export default function NewDocumentPage() {
     setValidUntilDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'))
   }, [])
 
-  // Adaptation dynamique du statut au changement de type (Devis vs Facture)
   const handleTypeChange = (newType: DocumentType) => {
     setType(newType)
-    setStatus('draft') // Remise à zéro propre sur le statut brouillon
+    setStatus('draft')
   }
 
-  // Logo Upload
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -107,7 +107,6 @@ export default function NewDocumentPage() {
     }
   }
 
-  // Handlers Articles
   const addItem = () => {
     setItems([
       ...items,
@@ -142,12 +141,10 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  // Calculs
   const subtotalHt = calculateSubtotalHt(items)
   const totalVat = calculateTotalVat(items, vatMode, globalVatRate)
   const totalTtc = calculateTotalTtc(items, vatMode, globalVatRate)
 
-  // Actions
   const handleConvertToInvoice = () => {
     setType('invoice')
     setStatus('draft')
@@ -217,12 +214,13 @@ export default function NewDocumentPage() {
           total_ht: subtotalHt,
           total_ttc: totalTtc,
           status,
+          language,
           created_at: new Date().toISOString()
         }
       ])
 
       if (error) throw error
-      setSuccessMessage(`Document ${documentNumber} enregistré avec le statut "${getStatusLabel(status)}" !`)
+      setSuccessMessage(`Document ${documentNumber} enregistré avec succès !`)
     } catch (err: any) {
       alert("Erreur lors de l'enregistrement : " + err.message)
     } finally {
@@ -230,33 +228,31 @@ export default function NewDocumentPage() {
     }
   }
 
-  // Rendu visuel du badge du statut selon le type
   const getStatusBadge = (st: DocumentStatus) => {
     switch (st) {
       case 'draft':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">BROUILLON</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">{t.draft}</span>
       case 'sent':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">ENVOYÉ</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">{t.sent}</span>
       case 'accepted':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">ACCEPTÉ / SIGNÉ</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">{t.accepted}</span>
       case 'rejected':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">REFUSÉ</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">{t.rejected}</span>
       case 'expired':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">EXPIRÉ</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">{t.expired}</span>
       case 'paid':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">PAYÉE</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">{t.paid}</span>
       case 'partially_paid':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-300">PARTIELLEMENT PAYÉE</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-300">{t.partiallyPaid}</span>
       case 'overdue':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">EN RETARD</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">{t.overdue}</span>
       case 'cancelled':
-        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-600 border border-gray-400">ANNULÉE</span>
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-600 border border-gray-400">{t.cancelled}</span>
       default:
         return null
     }
   }
 
-  // Découpage A4
   const ITEMS_PER_PAGE = 12
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
@@ -266,7 +262,6 @@ export default function NewDocumentPage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
       
-      {/* CSS d'impression A4 */}
       <style jsx global>{`
         @media print {
           @page {
@@ -306,7 +301,7 @@ export default function NewDocumentPage() {
         }
       `}</style>
 
-      {/* Barre supérieure FIXE */}
+      {/* Header Sticky */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           
@@ -361,13 +356,12 @@ export default function NewDocumentPage() {
         </div>
       )}
 
-      {/* Grille 2 Colonnes */}
+      {/* Grid 2 Colonnes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLONNE GAUCHE : Saisie */}
+        {/* Saisie */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
-          {/* Logo Artisan & Infos */}
           <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
             <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Identité / Logo Artisan</h2>
             <div className="flex items-center gap-3">
@@ -409,7 +403,6 @@ export default function NewDocumentPage() {
             </div>
           </div>
 
-          {/* Paramètres principaux : Type / Statut / TVA */}
           <div className="grid grid-cols-3 gap-3 pb-2 border-b">
             <div>
               <label className="block text-xs font-semibold text-gray-900 mb-1">Type document</label>
@@ -452,6 +445,21 @@ export default function NewDocumentPage() {
             </div>
 
             <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 pb-2 border-b">
+            <div>
               <label className="block text-xs font-semibold text-gray-900 mb-1">Gestion TVA</label>
               <select
                 value={vatMode}
@@ -462,23 +470,23 @@ export default function NewDocumentPage() {
                 <option value="per_product">TVA / produit</option>
               </select>
             </div>
-          </div>
 
-          {vatMode === 'global' && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Taux de TVA globale (%)</label>
-              <select
-                value={globalVatRate}
-                onChange={(e) => setGlobalVatRate(parseFloat(e.target.value))}
-                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value={20}>20 %</option>
-                <option value={10}>10 %</option>
-                <option value={5.5}>5,5 %</option>
-                <option value={0}>0 %</option>
-              </select>
-            </div>
-          )}
+            {vatMode === 'global' && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-900 mb-1">Taux TVA globale (%)</label>
+                <select
+                  value={globalVatRate}
+                  onChange={(e) => setGlobalVatRate(parseFloat(e.target.value))}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value={20}>20 %</option>
+                  <option value={10}>10 %</option>
+                  <option value={5.5}>5,5 %</option>
+                  <option value={0}>0 %</option>
+                </select>
+              </div>
+            )}
+          </div>
 
           {/* Client */}
           <div className="space-y-2.5 pt-1">
@@ -518,7 +526,7 @@ export default function NewDocumentPage() {
             />
           </div>
 
-          {/* Description courte */}
+          {/* Description */}
           <div>
             <label className="block text-xs font-semibold text-gray-900 mb-1">Description courte du document</label>
             <input
@@ -673,7 +681,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE : APERÇU A4 */}
+        {/* APERÇU A4 MULTILINGUE */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -707,25 +715,25 @@ export default function NewDocumentPage() {
                       <p className="text-gray-500">{companyPhone}</p>
                       <p className="text-gray-500">{companyWeb}</p>
                       {totalPages > 1 && (
-                        <p className="text-blue-600 font-bold">Page {pageIndex + 1} / {totalPages}</p>
+                        <p className="text-blue-600 font-bold">{t.page} {pageIndex + 1} / {totalPages}</p>
                       )}
                     </div>
                   </div>
 
-                  {/* Titre Document & Badge */}
+                  {/* Titre Traduit */}
                   <div className="flex justify-between items-center my-3 border-b pb-2">
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
-                      {type === 'quote' ? 'DEVIS' : 'FACTURE'}
+                      {type === 'quote' ? t.quote : t.invoice}
                     </h1>
                     <div>{getStatusBadge(status)}</div>
                   </div>
 
-                  {/* Infos Client / Méta */}
+                  {/* Infos Client / Méta Traduites */}
                   <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 border-blue-800 pb-2.5">
                     <div className="space-y-0.5">
-                      <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
-                      <p><span className="font-bold text-gray-900">Date:</span> {currentDate}</p>
-                      <p><span className="font-bold text-gray-900">Validité jusqu'au:</span> {validUntilDate}</p>
+                      <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
+                      <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
+                      <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
                     </div>
 
                     <div className="space-y-0.5">
@@ -735,24 +743,24 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Description courte (Page 1) */}
+                  {/* Description courte */}
                   {pageIndex === 0 && documentDescription && (
                     <div className="mb-3 text-xs">
-                      <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">DESCRIPTION:</span>
+                      <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">{t.description}</span>
                       <span className="text-gray-800">{documentDescription}</span>
                     </div>
                   )}
 
-                  {/* Tableau des Articles A4 */}
+                  {/* Tableau Traduit */}
                   <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
                     <table className="w-full text-left text-xs table-fixed border-collapse">
                       <thead className="bg-blue-800 text-white font-bold">
                         <tr>
-                          <th className="py-2 px-3">Description</th>
-                          <th className="py-2 px-2 text-center w-16">Qté</th>
-                          <th className="py-2 px-3 text-right w-20">Prix U.</th>
-                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">TVA</th>}
-                          <th className="py-2 px-3 text-right w-24">Total HT</th>
+                          <th className="py-2 px-3">{t.descriptionHeader}</th>
+                          <th className="py-2 px-2 text-center w-16">{t.quantity}</th>
+                          <th className="py-2 px-3 text-right w-20">{t.unitPrice}</th>
+                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">{t.vat}</th>}
+                          <th className="py-2 px-3 text-right w-24">{t.totalHt}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-gray-50/50">
@@ -781,20 +789,20 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* Totaux (Dernière Page) */}
+                  {/* Totaux Traduits */}
                   {isLastPage && (
                     <div className="flex justify-end text-xs mb-4">
                       <div className="w-56 space-y-1">
                         <div className="flex justify-between text-gray-700">
-                          <span>Total HT</span>
+                          <span>{t.totalHt}</span>
                           <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
                         </div>
                         <div className="flex justify-between text-gray-700">
-                          <span>TVA {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
+                          <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
                           <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}€</span>
                         </div>
                         <div className="flex justify-between bg-blue-800 text-white p-2 rounded font-bold text-sm">
-                          <span>Total TTC</span>
+                          <span>{t.totalTtc}</span>
                           <span>{totalTtc.toFixed(2)}€</span>
                         </div>
                       </div>
@@ -803,22 +811,22 @@ export default function NewDocumentPage() {
 
                 </div>
 
-                {/* Bas de page & Conditions (Dernière Page) */}
+                {/* Bas de page Traduit */}
                 {isLastPage && (
                   <div className="border-t-2 border-blue-800 pt-2.5 space-y-2 text-[10px] text-gray-700 mt-auto">
                     <div>
-                      <span className="font-bold text-blue-900 uppercase">CONDITIONS:</span>{' '}
+                      <span className="font-bold text-blue-900 uppercase">{t.conditions}</span>{' '}
                       {conditions}
                     </div>
 
                     <div className="pt-2 flex justify-around text-center">
                       <div className="w-36 border-t border-gray-400 pt-1">
-                        <p className="font-bold text-gray-900">BON POUR ACCORD</p>
-                        <p className="text-[9px] text-gray-500 mt-4">Signature client</p>
+                        <p className="font-bold text-gray-900">{t.goodForAgreement}</p>
+                        <p className="text-[9px] text-gray-500 mt-4">{t.signatureClient}</p>
                       </div>
                       <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900">DATE</p>
-                        <p className="text-[9px] text-gray-500 mt-4">Date d'acceptation</p>
+                        <p className="text-[9px] text-gray-500 mt-4">{t.dateAcceptance}</p>
                       </div>
                     </div>
                   </div>
