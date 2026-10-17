@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload } from 'lucide-react'
+import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload, Printer } from 'lucide-react'
 import Link from 'next/link'
 
 interface Item {
@@ -21,9 +21,12 @@ interface CatalogProduct {
   vat_rate: number
 }
 
+type DocumentStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
+
 export default function NewDocumentPage() {
   // Document State
   const [type, setType] = useState<'quote' | 'invoice'>('quote')
+  const [status, setStatus] = useState<DocumentStatus>('draft')
   const [clientName, setClientName] = useState('Marie Philippe')
   const [clientCompany, setClientCompany] = useState('COGIP')
   const [clientAddress, setClientAddress] = useState('13, quai Branly\n75002 Paris')
@@ -166,6 +169,11 @@ export default function NewDocumentPage() {
     setActiveItemIndexForProduct(null)
   }
 
+  // Impression
+  const handlePrint = () => {
+    window.print()
+  }
+
   // Supabase Save
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -193,13 +201,13 @@ export default function NewDocumentPage() {
           items: formattedItems,
           total_ht: subtotalHt,
           total_ttc: totalTtc,
-          status: 'draft',
+          status,
           created_at: new Date().toISOString()
         }
       ])
 
       if (error) throw error
-      setSuccessMessage(`Document ${documentNumber} enregistré avec succès !`)
+      setSuccessMessage(`Document ${documentNumber} enregistré avec le statut "${getStatusLabel(status)}" !`)
     } catch (err: any) {
       alert("Erreur lors de l'enregistrement : " + err.message)
     } finally {
@@ -207,7 +215,33 @@ export default function NewDocumentPage() {
     }
   }
 
-  // Découpage optimisé A4 : jusqu'à 12 articles par page pour éviter les sauts prématurés
+  // Libellés & Badges des statuts légaux
+  const getStatusLabel = (st: DocumentStatus) => {
+    switch (st) {
+      case 'draft': return 'Brouillon'
+      case 'sent': return 'Envoyé'
+      case 'accepted': return 'Accepté / Signé'
+      case 'rejected': return 'Refusé'
+      case 'expired': return 'Expiré'
+    }
+  }
+
+  const getStatusBadge = (st: DocumentStatus) => {
+    switch (st) {
+      case 'draft':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-300">BROUILLON</span>
+      case 'sent':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">ENVOYÉ</span>
+      case 'accepted':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">ACCEPTÉ / SIGNÉ</span>
+      case 'rejected':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">REFUSÉ</span>
+      case 'expired':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">EXPIRÉ</span>
+    }
+  }
+
+  // Découpage A4
   const ITEMS_PER_PAGE = 12
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
@@ -215,37 +249,78 @@ export default function NewDocumentPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 px-4 sm:px-6 lg:px-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
       
-      {/* Barre supérieure */}
-      <div className="max-w-7xl mx-auto flex justify-between items-center mb-6">
-        <Link href="/documents" className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Retour aux documents
-        </Link>
-        <h1 className="text-xl font-bold text-gray-900">
-          Création de {type === 'quote' ? 'Devis' : 'Facture'}
-        </h1>
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium shadow text-sm flex items-center space-x-2 disabled:opacity-50"
-        >
-          <Save className="w-4 h-4" />
-          <span>{loading ? 'Enregistrement...' : 'Enregistrer'}</span>
-        </button>
+      {/* Styles globaux pour l'impression (Imprime uniquement le document A4 à droite) */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #printable-area, #printable-area * {
+            visibility: visible;
+          }
+          #printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      {/* Barre supérieure FIXE (Sticky Header) */}
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+          
+          <div className="flex items-center space-x-3">
+            <Link href="/documents" className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium">
+              <ArrowLeft className="w-4 h-4 mr-1" /> Documents
+            </Link>
+            <span className="text-gray-300">|</span>
+            <h1 className="text-lg font-bold text-gray-900">
+              Création de {type === 'quote' ? 'Devis' : 'Facture'}
+            </h1>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handlePrint}
+              type="button"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium border border-gray-300 text-sm flex items-center space-x-2 transition"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Imprimer / PDF</span>
+            </button>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              type="button"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium shadow text-sm flex items-center space-x-2 disabled:opacity-50 transition"
+            >
+              <Save className="w-4 h-4" />
+              <span>{loading ? 'Enregistrement...' : 'Enregistrer'}</span>
+            </button>
+          </div>
+
+        </div>
       </div>
 
       {successMessage && (
-        <div className="max-w-7xl mx-auto mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm font-medium">
+        <div className="max-w-7xl mx-auto mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm font-medium no-print">
           {successMessage}
         </div>
       )}
 
-      {/* Grille 2 Colonnes */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Grille principale 2 Colonnes */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLONNE GAUCHE : Formulaire de Saisie */}
-        <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        {/* COLONNE GAUCHE : Formulaire de Saisie (Déroulant) */}
+        <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           {/* Logo Artisan & Infos */}
           <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
@@ -289,14 +364,14 @@ export default function NewDocumentPage() {
             </div>
           </div>
 
-          {/* Paramètres principaux */}
-          <div className="grid grid-cols-2 gap-3 pb-2 border-b">
+          {/* Paramètres principaux + Statuts légaux */}
+          <div className="grid grid-cols-3 gap-3 pb-2 border-b">
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Type de document</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Type document</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as 'quote' | 'invoice')}
-                className="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="quote">Devis</option>
                 <option value="invoice">Facture</option>
@@ -304,14 +379,29 @@ export default function NewDocumentPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Gestion de la TVA</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Statut légal</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as DocumentStatus)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="draft">Brouillon</option>
+                <option value="sent">Envoyé</option>
+                <option value="accepted">Accepté / Signé</option>
+                <option value="rejected">Refusé</option>
+                <option value="expired">Expiré</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Gestion TVA</label>
               <select
                 value={vatMode}
                 onChange={(e) => setVatMode(e.target.value as 'global' | 'per_product')}
-                className="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <option value="global">TVA identique (Globale)</option>
-                <option value="per_product">TVA spécifique par produit</option>
+                <option value="global">TVA Globale</option>
+                <option value="per_product">TVA / produit</option>
               </select>
             </div>
           </div>
@@ -322,7 +412,7 @@ export default function NewDocumentPage() {
               <select
                 value={globalVatRate}
                 onChange={(e) => setGlobalVatRate(parseFloat(e.target.value))}
-                className="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value={20}>20 %</option>
                 <option value={10}>10 %</option>
@@ -404,15 +494,13 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-7 flex gap-1">
-                      <input
-                        type="text"
+                      <textarea
+                        rows={2}
                         placeholder="Désignation de la prestation"
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500 resize-y"
                       />
-					  
-					  					  
                       <button
                         type="button"
                         onClick={() => {
@@ -420,7 +508,7 @@ export default function NewDocumentPage() {
                           setShowProductModal(true)
                         }}
                         title="Créer nouveau produit"
-                        className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300"
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300 h-8"
                       >
                         <PackagePlus className="w-4 h-4" />
                       </button>
@@ -527,8 +615,8 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE : APERÇU A4 COMPACT & DYNAMIQUE */}
-        <div className="lg:col-span-6 space-y-6">
+        {/* COLONNE DROITE : APERÇU A4 FIXE AU SCROLL (Sticky on Desktop) */}
+        <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
             const isLastPage = pageIndex === totalPages - 1
@@ -540,7 +628,7 @@ export default function NewDocumentPage() {
               >
                 
                 <div>
-                  {/* En-tête Répété */}
+                  {/* En-tête Répété sur chaque Page */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       {companyLogo ? (
@@ -561,20 +649,22 @@ export default function NewDocumentPage() {
                       <p className="text-gray-500">{companyPhone}</p>
                       <p className="text-gray-500">{companyWeb}</p>
                       {totalPages > 1 && (
-  <p className="text-blue-600 font-bold">Page {pageIndex + 1} / {totalPages}</p>
-)}
+                        <p className="text-blue-600 font-bold">Page {pageIndex + 1} / {totalPages}</p>
+                      )}
                     </div>
                   </div>
 
-                  {/* Titre */}
-                  <div className="text-center my-3">
+                  {/* Titre Document & Badge du Statut Actuel */}
+                  <div className="flex justify-between items-center my-3 border-b pb-2">
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
                       {type === 'quote' ? 'DEVIS' : 'FACTURE'}
                     </h1>
+                    {/* Badge du statut actuel */}
+                    <div>{getStatusBadge(status)}</div>
                   </div>
 
                   {/* Infos Client / Méta */}
-                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-t-2 border-b-2 border-blue-800 py-2.5">
+                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 border-blue-800 pb-2.5">
                     <div className="space-y-0.5">
                       <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #DEV-2026-1234</p>
                       <p><span className="font-bold text-gray-900">Date:</span> {currentDate}</p>
@@ -596,43 +686,43 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* Tableau des Articles A4 avec largeurs fixes et retour à la ligne automatique */}
-					<div className="overflow-hidden rounded-md mb-3 border border-gray-200">
-					  <table className="w-full text-left text-xs table-fixed border-collapse">
-						<thead className="bg-blue-800 text-white font-bold">
-						  <tr>
-							<th className="py-2 px-3">Description</th>
-							<th className="py-2 px-2 text-center w-16">Qté</th>
-							<th className="py-2 px-3 text-right w-20">Prix U.</th>
-							{vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">TVA</th>}
-							<th className="py-2 px-3 text-right w-24">Total HT</th>
-						  </tr>
-						</thead>
-						<tbody className="divide-y divide-gray-100 bg-gray-50/50">
-						  {pageItems.map((item, idx) => (
-							<tr key={idx} className="align-top">
-							  <td className="py-2 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
-								{item.description || 'Ligne de prestation'}
-							  </td>
-							  <td className="py-2 px-2 text-center text-gray-700 whitespace-nowrap">
-								{item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
-							  </td>
-							  <td className="py-2 px-3 text-right text-gray-700 whitespace-nowrap">
-								{item.unit_price.toFixed(2)}€
-							  </td>
-							  {vatMode === 'per_product' && (
-								<td className="py-2 px-2 text-right text-gray-600 whitespace-nowrap">
-								  {item.vat_rate}%
-								</td>
-							  )}
-							  <td className="py-2 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
-								{getItemTotalHt(item).toFixed(2)}€
-							  </td>
-							</tr>
-						  ))}
-						</tbody>
-					  </table>
-					</div>
+                  {/* Tableau des Articles A4 avec retour à la ligne sans décalage */}
+                  <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
+                    <table className="w-full text-left text-xs table-fixed border-collapse">
+                      <thead className="bg-blue-800 text-white font-bold">
+                        <tr>
+                          <th className="py-2 px-3">Description</th>
+                          <th className="py-2 px-2 text-center w-16">Qté</th>
+                          <th className="py-2 px-3 text-right w-20">Prix U.</th>
+                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">TVA</th>}
+                          <th className="py-2 px-3 text-right w-24">Total HT</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-gray-50/50">
+                        {pageItems.map((item, idx) => (
+                          <tr key={idx} className="align-top">
+                            <td className="py-1.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
+                              {item.description || 'Ligne de prestation'}
+                            </td>
+                            <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
+                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+                            </td>
+                            <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
+                              {item.unit_price.toFixed(2)}€
+                            </td>
+                            {vatMode === 'per_product' && (
+                              <td className="py-1.5 px-2 text-right text-gray-600 whitespace-nowrap">
+                                {item.vat_rate}%
+                              </td>
+                            )}
+                            <td className="py-1.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                              {getItemTotalHt(item).toFixed(2)}€
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
                   {/* Totaux (Dernière Page) */}
                   {isLastPage && (
@@ -687,7 +777,7 @@ export default function NewDocumentPage() {
 
       {/* MODALE CLIENT */}
       {showClientModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
             <button onClick={() => setShowClientModal(false)} className="absolute top-4 right-4 text-gray-400">
               <X className="w-5 h-5" />
@@ -735,7 +825,7 @@ export default function NewDocumentPage() {
 
       {/* MODALE PRODUIT */}
       {showProductModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
             <button onClick={() => setShowProductModal(false)} className="absolute top-4 right-4 text-gray-400">
               <X className="w-5 h-5" />
