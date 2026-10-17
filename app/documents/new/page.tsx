@@ -487,6 +487,7 @@ export default function NewDocumentPage() {
               <span>{loading ? t.saving : t.save}</span>
             </button>
 
+
             <LanguageSelector
               currentLanguage={language}
               onLanguageChange={(lang) => setLanguage(lang)}
