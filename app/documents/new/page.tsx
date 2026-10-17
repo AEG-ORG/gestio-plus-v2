@@ -389,8 +389,7 @@ export default function NewDocumentPage() {
       height: 297mm !important;
       max-height: 297mm !important;
       box-sizing: border-box !important;
-      /* Marges équilibrées et sécurisées */
-      padding: 10mm 15mm 10mm 15mm !important;
+      padding: 10mm 15mm 12mm 15mm !important;
       margin: 0 !important;
       border: none !important;
       border-radius: 0 !important;
@@ -401,12 +400,15 @@ export default function NewDocumentPage() {
       print-color-adjust: exact !important;
       display: flex !important;
       flex-direction: column !important;
-      /* Suppression du space-between pour que les éléments se suivent naturellement sans descendre trop bas */
       justify-content: flex-start !important;
-      gap: 12px !important;
       overflow: hidden !important;
       page-break-after: always;
       page-break-inside: avoid;
+    }
+
+    /* Forcer le pied de page à se positionner juste après les totaux avec un espacement propre */
+    .print-footer {
+      margin-top: 2rem !important;
     }
 
     * {
@@ -916,26 +918,26 @@ export default function NewDocumentPage() {
                   )}
                 </div>
 
-                {/* PIED DE PAGE FIXE : CONDITIONS ET BLOC SIGNATURE GARANTI VISIBLE */}
-                {isLastPage && (
-                  <div className="pt-2 mt-auto text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
-                    <div className="mb-2">
-                      <span className="font-bold uppercase" style={{ color: '#1e3a8a' }}>{t.conditions}</span>{' '}
-                      {conditions}
-                    </div>
+				{/* PIED DE PAGE : CONDITIONS ET BLOC SIGNATURE */}
+				{isLastPage && (
+				  <div className="print-footer pt-3 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
+					<div className="mb-3">
+					  <span className="font-bold uppercase" style={{ color: '#1e3a8a' }}>{t.conditions}</span>{' '}
+					  {conditions}
+					</div>
 
-                    <div className="pt-1 flex justify-around text-center">
-                      <div className="w-36 border-t border-gray-400 pt-1">
-                        <p className="font-bold text-gray-900">{t.goodForAgreement}</p>
-                        <p className="text-[9px] text-gray-500 mt-3">{t.signatureClient}</p>
-                      </div>
-                      <div className="w-36 border-t border-gray-400 pt-1">
-                        <p className="font-bold text-gray-900">DATE</p>
-                        <p className="text-[9px] text-gray-500 mt-3">{t.dateAcceptance}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+					<div className="pt-2 flex justify-around text-center">
+					  <div className="w-36 border-t border-gray-400 pt-1">
+						<p className="font-bold text-gray-900">{t.goodForAgreement}</p>
+						<p className="text-[9px] text-gray-500 mt-4">{t.signatureClient}</p>
+					  </div>
+					  <div className="w-36 border-t border-gray-400 pt-1">
+						<p className="font-bold text-gray-900">DATE</p>
+						<p className="text-[9px] text-gray-500 mt-4">{t.dateAcceptance}</p>
+					  </div>
+					</div>
+				  </div>
+				)}
 
               </div>
             )
