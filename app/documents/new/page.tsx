@@ -354,7 +354,7 @@ export default function NewDocumentPage() {
             size: A4 portrait;
             margin: 0;
           }
-          
+
           html, body {
             width: 210mm !important;
             height: 297mm !important;
@@ -371,22 +371,24 @@ export default function NewDocumentPage() {
           }
 
           #printable-area {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 210mm !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: static !important;
+            width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             box-shadow: none !important;
             border: none !important;
+            overflow: hidden !important;
           }
 
           .a4-page {
             width: 210mm !important;
             height: 297mm !important;
+            max-height: 297mm !important;
             box-sizing: border-box !important;
-            padding: 10mm 12mm !important;
+            padding: 10mm 15mm !important;
             margin: 0 !important;
             box-shadow: none !important;
             border: none !important;
@@ -399,10 +401,11 @@ export default function NewDocumentPage() {
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
+            overflow: hidden !important;
           }
 
-          * {
-            box-shadow: none !important;
+          ::-webkit-scrollbar {
+            display: none !important;
           }
         }
       `}</style>
@@ -900,7 +903,7 @@ export default function NewDocumentPage() {
 
                 </div>
 
-                {/* Bas de page Traduit avec espacement optimal pour l'impression */}
+                {/* Bas de page Traduit */}
                 {isLastPage && (
                   <div className="border-t-2 border-blue-800 pt-2 space-y-1.5 text-[10px] text-gray-700 mt-2">
                     <div>
