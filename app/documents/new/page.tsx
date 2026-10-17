@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, FileText, Eye } from 'lucide-react'
+import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X } from 'lucide-react'
 import Link from 'next/link'
 
 interface Item {
@@ -85,7 +85,7 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  // Sélection d'un produit du catalogue pour remplir la ligne
+  // Sélection d'un produit du catalogue
   const handleSelectCatalogProduct = (index: number, productId: string) => {
     const selected = catalog.find((p) => p.id === productId)
     if (!selected) return
@@ -216,10 +216,468 @@ export default function NewDocumentPage() {
       {/* Grille principale 2 Colonnes */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLONNE GAUCHE : Formulaire de Saisie (7 cols) */}
+        {/* COLONNE GAUCHE : Formulaire de Saisie */}
         <div className="lg:col-span-6 space-y-6 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           
           {/* Paramètres principaux */}
           <div className="grid grid-cols-2 gap-4 pb-4 border-b">
             <div>
-              <label className="block text-
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Type de document</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as 'quote' | 'invoice')}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="quote">Devis</option>
+                <option value="invoice">Facture</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Gestion de la TVA</label>
+              <select
+                value={vatMode}
+                onChange={(e) => setVatMode(e.target.value as 'global' | 'per_product')}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="global">TVA identique (Globale)</option>
+                <option value="per_product">TVA spécifique par produit</option>
+              </select>
+            </div>
+          </div>
+
+          {vatMode === 'global' && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Taux de TVA globale (%)</label>
+              <select
+                value={globalVatRate}
+                onChange={(e) => setGlobalVatRate(parseFloat(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={20}>20 %</option>
+                <option value={10}>10 %</option>
+                <option value={5.5}>5,5 %</option>
+                <option value={0}>0 %</option>
+              </select>
+            </div>
+          )}
+
+          {/* Section Client */}
+          <div className="space-y-3 pt-2">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Information Client</h2>
+              <button
+                type="button"
+                onClick={() => setShowClientModal(true)}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
+              >
+                <UserPlus className="w-3.5 h-3.5 mr-1" /> Nouveau Client
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <input
+                type="text"
+                placeholder="Nom du Client"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Entreprise / Société"
+                value={clientCompany}
+                onChange={(e) => setClientCompany(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <textarea
+              placeholder="Adresse complète"
+              rows={2}
+              value={clientAddress}
+              onChange={(e) => setClientAddress(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Description courte du document */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Description courte du document</label>
+            <input
+              type="text"
+              value={documentDescription}
+              onChange={(e) => setDocumentDescription(e.target.value)}
+              placeholder="Ex: Prestation de rénovation"
+              className="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Section Lignes Produits */}
+          <div className="space-y-3 pt-2">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Lignes d'articles</h2>
+
+            <div className="space-y-3">
+              {items.map((item, index) => (
+                <div key={index} className="p-3 bg-gray-50 border rounded-lg space-y-2">
+                  
+                  {/* Sélecteur de Catalogue & Désignation */}
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="col-span-5">
+                      <select
+                        onChange={(e) => handleSelectCatalogProduct(index, e.target.value)}
+                        defaultValue=""
+                        className="w-full border border-blue-200 bg-blue-50/50 rounded p-1.5 text-xs text-blue-900 font-medium outline-none"
+                      >
+                        <option value="" disabled>-- Choisir du catalogue --</option>
+                        {catalog.map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.label} ({cat.unit_price}€)</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-span-7 flex gap-1">
+                      <input
+                        type="text"
+                        placeholder="Désignation"
+                        value={item.description}
+                        onChange={(e) => updateItem(index, 'description', e.target.value)}
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs outline-none bg-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveItemIndexForProduct(index)
+                          setShowProductModal(true)
+                        }}
+                        title="Créer nouveau produit"
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300"
+                      >
+                        <PackagePlus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quantité, Unité, Prix U. HT, Total HT */}
+                  <div className="grid grid-cols-12 gap-2 items-center">
+                    <div className="col-span-3">
+                      <label className="block text-[10px] text-gray-500">Quantité</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs outline-none bg-white"
+                      />
+                    </div>
+
+                    <div className="col-span-3">
+                      <label className="block text-[10px] text-gray-500">Unité</label>
+                      <select
+                        value={item.unit}
+                        onChange={(e) => updateItem(index, 'unit', e.target.value)}
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs outline-none bg-white"
+                      >
+                        <option value="Unité">Unité</option>
+                        <option value="Heure">Heure</option>
+                        <option value="Jour">Jour</option>
+                        <option value="m²">m²</option>
+                        <option value="Forfait">Forfait</option>
+                      </select>
+                    </div>
+
+                    <div className="col-span-3">
+                      <label className="block text-[10px] text-gray-500">Prix U. HT (€)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={item.unit_price}
+                        onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs outline-none bg-white"
+                      />
+                    </div>
+
+                    {vatMode === 'per_product' ? (
+                      <div className="col-span-2">
+                        <label className="block text-[10px] text-gray-500">TVA %</label>
+                        <select
+                          value={item.vat_rate}
+                          onChange={(e) => updateItem(index, 'vat_rate', parseFloat(e.target.value))}
+                          className="w-full border border-gray-300 rounded p-1.5 text-xs outline-none bg-white"
+                        >
+                          <option value={20}>20%</option>
+                          <option value={10}>10%</option>
+                          <option value={5.5}>5.5%</option>
+                          <option value={0}>0%</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="col-span-2 text-right">
+                        <label className="block text-[10px] text-gray-500">Total HT</label>
+                        <span className="text-xs font-bold text-gray-800">{getItemTotalHt(item).toFixed(2)} €</span>
+                      </div>
+                    )}
+
+                    <div className="col-span-1 text-right">
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        disabled={items.length === 1}
+                        className="text-red-500 hover:text-red-700 disabled:opacity-30 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={addItem}
+              className="flex items-center text-xs font-semibold text-blue-600 hover:text-blue-800 pt-1"
+            >
+              <Plus className="w-4 h-4 mr-1" /> Ajouter une ligne
+            </button>
+          </div>
+
+        </div>
+
+
+        {/* COLONNE DROITE : APERÇU TEMPS RÉEL (STYLE BATIPRO BLEU) */}
+        <div className="lg:col-span-6 sticky top-6">
+          <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 min-h-[700px] flex flex-col justify-between">
+            
+            <div>
+              {/* En-tête Bleu */}
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center space-x-2">
+                  <div className="w-9 h-9 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                    G+
+                  </div>
+                  <span className="font-extrabold text-blue-900 text-lg tracking-wide">BATIPRO</span>
+                </div>
+
+                <div className="text-right text-xs text-blue-900 space-y-0.5 font-semibold">
+                  <p className="font-bold text-sm text-blue-800">NOM DE MON ENTREPRISE</p>
+                  <p className="text-gray-500">123 Rue de la République</p>
+                  <p className="text-gray-500">01 23 45 67 89</p>
+                  <p className="text-gray-500">www.monentreprise.fr</p>
+                </div>
+              </div>
+
+              {/* Titre Document */}
+              <div className="text-center my-6">
+                <h1 className="text-3xl font-black tracking-widest text-blue-800 uppercase">
+                  {type === 'quote' ? 'DEVIS' : 'FACTURE'}
+                </h1>
+              </div>
+
+              {/* Méta-informations & Client */}
+              <div className="grid grid-cols-2 gap-6 text-xs mb-6 border-t-2 border-b-2 border-blue-800 py-4">
+                <div className="space-y-1">
+                  <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #DEV-2026-1234</p>
+                  <p><span className="font-bold text-gray-900">Date:</span> {currentDate}</p>
+                  <p><span className="font-bold text-gray-900">Validité jusqu'au:</span> {validUntilDate}</p>
+                  <p><span className="font-bold text-gray-900">Client:</span> 123456</p>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="font-bold text-blue-900 text-sm">{clientName || 'Nom Client'}</p>
+                  <p className="font-semibold text-gray-700">{clientCompany}</p>
+                  <p className="whitespace-pre-line text-gray-600">{clientAddress || 'Adresse client'}</p>
+                  <p className="text-gray-500">{clientEmail}</p>
+                </div>
+              </div>
+
+              {/* Description courte */}
+              {documentDescription && (
+                <div className="mb-6 text-xs">
+                  <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">DESCRIPTION</span>
+                  <span className="text-gray-700">{documentDescription}</span>
+                </div>
+              )}
+
+              {/* Tableau Bleu Style BatiPro */}
+              <div className="overflow-hidden rounded-md mb-6 border border-gray-100">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-blue-800 text-white font-bold">
+                    <tr>
+                      <th className="py-2.5 px-3">Description</th>
+                      <th className="py-2.5 px-2 text-center w-16">Quantity</th>
+                      <th className="py-2.5 px-3 text-right w-20">Price</th>
+                      {vatMode === 'per_product' && <th className="py-2.5 px-2 text-right w-14">TVA</th>}
+                      <th className="py-2.5 px-3 text-right w-24">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-gray-50/50">
+                    {items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="py-2.5 px-3 text-gray-800 font-medium">
+                          {item.description || 'Ligne de prestation'}
+                        </td>
+                        <td className="py-2.5 px-2 text-center text-gray-600">
+                          {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-gray-600">
+                          {item.unit_price.toFixed(2)}€
+                        </td>
+                        {vatMode === 'per_product' && (
+                          <td className="py-2.5 px-2 text-right text-gray-500">
+                            {item.vat_rate}%
+                          </td>
+                        )}
+                        <td className="py-2.5 px-3 text-right font-semibold text-gray-900">
+                          {getItemTotalHt(item).toFixed(2)}€
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Totaux */}
+              <div className="flex justify-end text-xs mb-8">
+                <div className="w-60 space-y-2">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Total HT</span>
+                    <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>TVA {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
+                    <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex justify-between bg-blue-800 text-white p-2.5 rounded font-bold text-sm">
+                    <span>Total TTC</span>
+                    <span>{totalTtc.toFixed(2)}€</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Pied de Page & Conditions */}
+            <div className="border-t-2 border-blue-800 pt-4 space-y-4 text-[10px] text-gray-600">
+              <div>
+                <span className="font-bold text-blue-900 uppercase">CONDITIONS</span>{' '}
+                Règlement : [30 % à la commande, solde à la livraison] — Mode : [Virement bancaire] — Pénalités de retard : taux directeur BCE + 10 pts.
+              </div>
+
+              <div className="pt-4 flex justify-around text-center">
+                <div className="w-36 border-t border-gray-400 pt-1">
+                  <p className="font-bold text-gray-800">BON POUR ACCORD</p>
+                  <p className="text-[9px] text-gray-400 mt-6">Signature client</p>
+                </div>
+                <div className="w-36 border-t border-gray-400 pt-1">
+                  <p className="font-bold text-gray-800">DATE</p>
+                  <p className="text-[9px] text-gray-400 mt-6">Date d'acceptation</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      {/* MODALE CLIENT */}
+      {showClientModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+            <button onClick={() => setShowClientModal(false)} className="absolute top-4 right-4 text-gray-400">
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <UserPlus className="w-5 h-5 mr-2 text-blue-600" /> Ajouter un client
+            </h3>
+            <form onSubmit={handleSaveClient} className="space-y-3 text-xs">
+              <input
+                type="text"
+                placeholder="Nom *"
+                required
+                value={newClient.name}
+                onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                className="w-full border p-2 rounded outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Entreprise"
+                value={newClient.company}
+                onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
+                className="w-full border p-2 rounded outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={newClient.email}
+                onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                className="w-full border p-2 rounded outline-none"
+              />
+              <textarea
+                placeholder="Adresse"
+                rows={2}
+                value={newClient.address}
+                onChange={(e) => setNewClient({ ...newClient, address: e.target.value })}
+                className="w-full border p-2 rounded outline-none"
+              />
+              <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
+                Enregistrer le client
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODALE PRODUIT */}
+      {showProductModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+            <button onClick={() => setShowProductModal(false)} className="absolute top-4 right-4 text-gray-400">
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <PackagePlus className="w-5 h-5 mr-2 text-blue-600" /> Créer un nouveau produit
+            </h3>
+            <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
+              <input
+                type="text"
+                placeholder="Désignation *"
+                required
+                value={newProduct.label}
+                onChange={(e) => setNewProduct({ ...newProduct, label: e.target.value })}
+                className="w-full border p-2 rounded outline-none"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Prix Unitaire HT (€)"
+                  required
+                  value={newProduct.unit_price}
+                  onChange={(e) => setNewProduct({ ...newProduct, unit_price: parseFloat(e.target.value) || 0 })}
+                  className="border p-2 rounded outline-none"
+                />
+                <select
+                  value={newProduct.unit}
+                  onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
+                  className="border p-2 rounded outline-none"
+                >
+                  <option value="Unité">Unité</option>
+                  <option value="Heure">Heure</option>
+                  <option value="Jour">Jour</option>
+                  <option value="m²">m²</option>
+                  <option value="Forfait">Forfait</option>
+                </select>
+              </div>
+              <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
+                Ajouter à la ligne
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
