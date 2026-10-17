@@ -61,9 +61,14 @@ export default function NewDocumentPage() {
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Dates
-  const currentDate = new Date().toLocaleDateString('fr-FR')
-  const validUntilDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
+  // Dates gérées de manière sécurisée côté client pour le build Vercel
+  const [currentDate, setCurrentDate] = useState<string>('')
+  const [validUntilDate, setValidUntilDate] = useState<string>('')
+
+  React.useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('fr-FR'))
+    setValidUntilDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'))
+  }, [])
 
   // Manipulation des articles
   const addItem = () => {
