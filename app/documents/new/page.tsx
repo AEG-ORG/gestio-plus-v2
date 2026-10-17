@@ -41,14 +41,14 @@ export default function NewDocumentPage() {
   const [clientCompany, setClientCompany] = useState('COGIP')
   const [clientAddress, setClientAddress] = useState('13, quai Branly\n75002 Paris')
   const [clientEmail, setClientEmail] = useState('marie.philippe@cogip.fr')
-  const [documentDescription, setDocumentDescription] = useState('Prestation de renovation et d\'amenagement')
+  const [documentDescription, setDocumentDescription] = useState('Prestation de rénovation et d\'aménagement')
   const [conditions, setConditions] = useState(
-    'Reglement : [30 % a la commande, solde a la livraison] — Mode : [Virement bancaire]'
+    'Règlement : [30 % à la commande, solde à la livraison] — Mode : [Virement bancaire]'
   )
   const [companyLogo, setCompanyLogo] = useState<string | null>(null)
 
   const [companyName, setCompanyName] = useState('BATIPRO SARL')
-  const [companyAddress, setCompanyAddress] = useState('123 Rue de la Republique, 75011 Paris')
+  const [companyAddress, setCompanyAddress] = useState('123 Rue de la République, 75011 Paris')
   const [companyPhone, setCompanyPhone] = useState('01 23 45 67 89')
   const [companyWeb, setCompanyWeb] = useState('www.batipro-renov.fr')
 
@@ -56,13 +56,13 @@ export default function NewDocumentPage() {
   const [globalVatRate, setGlobalVatRate] = useState<number>(20)
 
   const [catalog] = useState<CatalogProduct[]>([
-    { id: '1', label: 'Prestation de conseil et etude', unit_price: 100, unit: 'Heure', vat_rate: 20 },
+    { id: '1', label: 'Prestation de conseil & étude', unit_price: 100, unit: 'Heure', vat_rate: 20 },
     { id: '2', label: 'Peinture murale acrylique', unit_price: 45, unit: 'm²', vat_rate: 10 },
-    { id: '3', label: 'Pose de rewetement de sol', unit_price: 60, unit: 'm²', vat_rate: 20 },
+    { id: '3', label: 'Pose de revêtement de sol', unit_price: 60, unit: 'm²', vat_rate: 20 },
   ])
 
   const [items, setItems] = useState<Item[]>([
-    { description: 'Prestation 1 - Preparation des supports', quantity: 5, unit: 'Unite', unit_price: 100, vat_rate: 20 }
+    { description: 'Prestation 1 - Préparation des supports', quantity: 5, unit: 'Unité', unit_price: 100, vat_rate: 20 }
   ])
 
   const [showClientModal, setShowClientModal] = useState(false)
@@ -70,7 +70,7 @@ export default function NewDocumentPage() {
   const [activeItemIndexForProduct, setActiveItemIndexForProduct] = useState<number | null>(null)
 
   const [newClient, setNewClient] = useState({ name: '', company: '', email: '', address: '' })
-  const [newProduct, setNewProduct] = useState({ label: '', unit_price: 0, unit: 'Unite', vat_rate: 20 })
+  const [newProduct, setNewProduct] = useState({ label: '', unit_price: 0, unit: 'Unité', vat_rate: 20 })
 
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
@@ -100,7 +100,7 @@ export default function NewDocumentPage() {
   const addItem = () => {
     setItems([
       ...items,
-      { description: '', quantity: 1, unit: 'Unite', unit_price: 0, vat_rate: vatMode === 'global' ? globalVatRate : 20 }
+      { description: '', quantity: 1, unit: 'Unité', unit_price: 0, vat_rate: vatMode === 'global' ? globalVatRate : 20 }
     ])
   }
 
@@ -138,7 +138,7 @@ export default function NewDocumentPage() {
   const handleConvertToInvoice = () => {
     setType('invoice')
     setStatus('draft')
-    setSuccessMessage('Devis converti en Facture avec succes.')
+    setSuccessMessage('Devis converti en Facture avec succès.')
   }
 
   const handlePrint = () => {
@@ -173,7 +173,7 @@ export default function NewDocumentPage() {
     }
 
     setShowProductModal(false)
-    setNewProduct({ label: '', unit_price: 0, unit: 'Unite', vat_rate: 20 })
+    setNewProduct({ label: '', unit_price: 0, unit: 'Unité', vat_rate: 20 })
     setActiveItemIndexForProduct(null)
   }
 
@@ -210,9 +210,9 @@ export default function NewDocumentPage() {
       ])
 
       if (error) throw error
-      setSuccessMessage('Document enregistre avec succes !')
+      setSuccessMessage('Document enregistré avec succès !')
     } catch (err: any) {
-      alert('Erreur lors de l enregistrement : ' + err.message)
+      alert('Erreur lors de l\'enregistrement : ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -261,49 +261,65 @@ export default function NewDocumentPage() {
         }
       `}</style>
 
+      {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE EN HAUT À DROITE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+          
           <div className="flex items-center space-x-3">
             <Link href="/documents" className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium">
-              <ArrowLeft className="w-4 h-4 mr-1" /> Documents
+              <ArrowLeft className="w-4 h-4 mr-1" /> {t.backToDocuments}
             </Link>
             <span className="text-gray-300">|</span>
             <h1 className="text-lg font-bold text-gray-900">
-              Creation de {type === 'quote' ? 'Devis' : 'Facture'}
+              {type === 'quote' ? t.createQuote : t.createInvoice}
             </h1>
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* SÉLECTEUR DE LANGUE GLOBAL (Drapeaux en haut à droite) */}
+            <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-2 py-1 shadow-sm">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+                className="bg-transparent text-xs text-gray-900 font-semibold outline-none cursor-pointer"
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+
             {type === 'quote' && status === 'accepted' && (
               <button
                 onClick={handleConvertToInvoice}
                 type="button"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center space-x-2 shadow transition"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center space-x-1.5 shadow transition"
               >
                 <FileCheck className="w-4 h-4" />
-                <span>Facturer le devis</span>
+                <span>{t.invoiceQuote}</span>
               </button>
             )}
 
             <button
               onClick={handlePrint}
               type="button"
-              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium border border-gray-300 text-sm flex items-center space-x-2 transition"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-lg font-medium border border-gray-300 text-xs flex items-center space-x-1.5 transition"
             >
               <Printer className="w-4 h-4" />
-              <span>Imprimer / PDF</span>
+              <span>{t.print}</span>
             </button>
 
             <button
               onClick={handleSubmit}
               disabled={loading}
               type="button"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium shadow text-sm flex items-center space-x-2 disabled:opacity-50 transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-medium shadow text-xs flex items-center space-x-1.5 disabled:opacity-50 transition"
             >
               <Save className="w-4 h-4" />
-              <span>{loading ? 'Enregistrement...' : 'Enregistrer'}</span>
+              <span>{loading ? t.saving : t.save}</span>
             </button>
           </div>
+
         </div>
       </div>
 
@@ -313,11 +329,14 @@ export default function NewDocumentPage() {
         </div>
       )}
 
+      {/* GRILLE 2 COLONNES : FORMULAIRE DE GAUCHE & APERÇU A4 DE DROITE */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* COLONNE GAUCHE (Formulaire de saisie) */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
-            <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Identite / Logo Artisan</h2>
+            <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">{t.artisanIdentity}</h2>
             <div className="flex items-center gap-3">
               {companyLogo ? (
                 <div className="relative w-14 h-14 border rounded bg-white overflow-hidden flex items-center justify-center">
@@ -357,21 +376,21 @@ export default function NewDocumentPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 pb-2 border-b">
+          <div className="grid grid-cols-2 gap-3 pb-2 border-b">
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Type document</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">{t.documentType}</label>
               <select
                 value={type}
                 onChange={(e) => handleTypeChange(e.target.value as DocumentType)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <option value="quote">Devis</option>
-                <option value="invoice">Facture</option>
+                <option value="quote">{t.quote}</option>
+                <option value="invoice">{t.invoice}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Statut</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">{t.status}</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as DocumentStatus)}
@@ -379,55 +398,42 @@ export default function NewDocumentPage() {
               >
                 {type === 'quote' ? (
                   <>
-                    <option value="draft">Brouillon</option>
-                    <option value="sent">Envoye</option>
-                    <option value="accepted">Accepte / Signe</option>
-                    <option value="rejected">Refuse</option>
-                    <option value="expired">Expire</option>
+                    <option value="draft">{t.draft}</option>
+                    <option value="sent">{t.sent}</option>
+                    <option value="accepted">{t.accepted}</option>
+                    <option value="rejected">{t.rejected}</option>
+                    <option value="expired">{t.expired}</option>
                   </>
                 ) : (
                   <>
-                    <option value="draft">Brouillon</option>
-                    <option value="sent">Envoyee</option>
-                    <option value="paid">Payee</option>
-                    <option value="partially_paid">Partiellement payee</option>
-                    <option value="overdue">En retard</option>
-                    <option value="cancelled">Annulee</option>
+                    <option value="draft">{t.draft}</option>
+                    <option value="sent">{t.sent}</option>
+                    <option value="paid">{t.paid}</option>
+                    <option value="partially_paid">{t.partiallyPaid}</option>
+                    <option value="overdue">{t.overdue}</option>
+                    <option value="cancelled">{t.cancelled}</option>
                   </>
                 )}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="fr">🇫🇷 Français</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="en">🇬🇧 English</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pb-2 border-b">
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Gestion TVA</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">{t.vatManagement}</label>
               <select
                 value={vatMode}
                 onChange={(e) => setVatMode(e.target.value as VatMode)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <option value="global">TVA Globale</option>
-                <option value="per_product">TVA / produit</option>
+                <option value="global">{t.globalVat}</option>
+                <option value="per_product">{t.perProductVat}</option>
               </select>
             </div>
 
             {vatMode === 'global' && (
               <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1">Taux TVA globale (%)</label>
+                <label className="block text-xs font-semibold text-gray-900 mb-1">{t.globalVatRate}</label>
                 <select
                   value={globalVatRate}
                   onChange={(e) => setGlobalVatRate(parseFloat(e.target.value))}
@@ -444,34 +450,34 @@ export default function NewDocumentPage() {
 
           <div className="space-y-2.5 pt-1">
             <div className="flex justify-between items-center">
-              <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Information Client</h2>
+              <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">{t.clientInfo}</h2>
               <button
                 type="button"
                 onClick={() => setShowClientModal(true)}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
               >
-                <UserPlus className="w-3.5 h-3.5 mr-1" /> Nouveau Client
+                <UserPlus className="w-3.5 h-3.5 mr-1" /> {t.newClient}
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
-                placeholder="Nom du Client"
+                placeholder={t.clientNamePlaceholder}
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 className="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-gray-400"
               />
               <input
                 type="text"
-                placeholder="Entreprise / Societe"
+                placeholder={t.clientCompanyPlaceholder}
                 value={clientCompany}
                 onChange={(e) => setClientCompany(e.target.value)}
                 className="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-gray-400"
               />
             </div>
             <textarea
-              placeholder="Adresse complete"
+              placeholder={t.clientAddressPlaceholder}
               rows={2}
               value={clientAddress}
               onChange={(e) => setClientAddress(e.target.value)}
@@ -480,18 +486,18 @@ export default function NewDocumentPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-900 mb-1">Description courte du document</label>
+            <label className="block text-xs font-semibold text-gray-900 mb-1">{t.shortDescription}</label>
             <input
               type="text"
               value={documentDescription}
               onChange={(e) => setDocumentDescription(e.target.value)}
-              placeholder="Ex: Prestation de renovation"
+              placeholder="Ex: Prestation de rénovation"
               className="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-gray-400"
             />
           </div>
 
           <div className="space-y-3 pt-1">
-            <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Lignes d'articles</h2>
+            <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">{t.lineItems}</h2>
 
             <div className="space-y-2.5">
               {items.map((item, index) => (
@@ -503,7 +509,7 @@ export default function NewDocumentPage() {
                         defaultValue=""
                         className="w-full border border-blue-300 bg-white rounded p-1.5 text-xs text-blue-900 font-semibold outline-none"
                       >
-                        <option value="" disabled>-- Choisir du catalogue --</option>
+                        <option value="" disabled>{t.catalogPlaceholder}</option>
                         {catalog.map((cat) => (
                           <option key={cat.id} value={cat.id}>{cat.label} ({cat.unit_price}€)</option>
                         ))}
@@ -513,7 +519,7 @@ export default function NewDocumentPage() {
                     <div className="col-span-7 flex gap-1">
                       <input
                         type="text"
-                        placeholder="Designation de la prestation"
+                        placeholder={t.designationPlaceholder}
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
@@ -524,7 +530,7 @@ export default function NewDocumentPage() {
                           setActiveItemIndexForProduct(index)
                           setShowProductModal(true)
                         }}
-                        title="Creer nouveau produit"
+                        title="Créer nouveau produit"
                         className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300"
                       >
                         <PackagePlus className="w-4 h-4" />
@@ -534,7 +540,7 @@ export default function NewDocumentPage() {
 
                   <div className="grid grid-cols-12 gap-2 items-center">
                     <div className="col-span-3">
-                      <label className="block text-[10px] font-semibold text-gray-700">Qte</label>
+                      <label className="block text-[10px] font-semibold text-gray-700">{t.qty}</label>
                       <input
                         type="number"
                         min="1"
@@ -545,13 +551,13 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-3">
-                      <label className="block text-[10px] font-semibold text-gray-700">Unite</label>
+                      <label className="block text-[10px] font-semibold text-gray-700">{t.unit}</label>
                       <select
                         value={item.unit}
                         onChange={(e) => updateItem(index, 'unit', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 outline-none bg-white font-medium"
                       >
-                        <option value="Unite">Unite</option>
+                        <option value="Unité">Unité</option>
                         <option value="Heure">Heure</option>
                         <option value="Jour">Jour</option>
                         <option value="m²">m²</option>
@@ -560,7 +566,7 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-3">
-                      <label className="block text-[10px] font-semibold text-gray-700">Prix U. HT (€)</label>
+                      <label className="block text-[10px] font-semibold text-gray-700">{t.unitPriceHt}</label>
                       <input
                         type="number"
                         step="0.01"
@@ -572,7 +578,7 @@ export default function NewDocumentPage() {
 
                     {vatMode === 'per_product' ? (
                       <div className="col-span-2">
-                        <label className="block text-[10px] font-semibold text-gray-700">TVA %</label>
+                        <label className="block text-[10px] font-semibold text-gray-700">{t.vat} %</label>
                         <select
                           value={item.vat_rate}
                           onChange={(e) => updateItem(index, 'vat_rate', parseFloat(e.target.value))}
@@ -586,7 +592,7 @@ export default function NewDocumentPage() {
                       </div>
                     ) : (
                       <div className="col-span-2 text-right">
-                        <label className="block text-[10px] font-semibold text-gray-700">Total HT</label>
+                        <label className="block text-[10px] font-semibold text-gray-700">{t.totalHt}</label>
                         <span className="text-xs font-bold text-gray-900">{calculateItemTotalHt(item).toFixed(2)} €</span>
                       </div>
                     )}
@@ -602,6 +608,7 @@ export default function NewDocumentPage() {
                       </button>
                     </div>
                   </div>
+
                 </div>
               ))}
             </div>
@@ -611,13 +618,13 @@ export default function NewDocumentPage() {
               onClick={addItem}
               className="flex items-center text-xs font-semibold text-blue-600 hover:text-blue-800 pt-1"
             >
-              <Plus className="w-4 h-4 mr-1" /> Ajouter une ligne
+              <Plus className="w-4 h-4 mr-1" /> {t.addArticle}
             </button>
           </div>
 
           <div className="pt-1">
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-1">
-              Conditions Generales de Reglement
+              {t.termsAndConditions}
             </label>
             <textarea
               rows={2}
@@ -626,9 +633,13 @@ export default function NewDocumentPage() {
               className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
+
         </div>
 
+
+        {/* COLONNE DROITE (Aperçu A4 Multilingue) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
+          
           {pages.map((pageItems, pageIndex) => {
             const isLastPage = pageIndex === totalPages - 1
 
@@ -637,6 +648,7 @@ export default function NewDocumentPage() {
                 key={pageIndex}
                 className="a4-page bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
+                
                 <div>
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
@@ -709,7 +721,7 @@ export default function NewDocumentPage() {
                               {item.description || 'Ligne de prestation'}
                             </td>
                             <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
-                              {item.quantity} {item.unit !== 'Unite' ? item.unit : ''}
+                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
                             </td>
                             <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
                               {item.unit_price.toFixed(2)}€
@@ -746,6 +758,7 @@ export default function NewDocumentPage() {
                       </div>
                     </div>
                   )}
+
                 </div>
 
                 {isLastPage && (
@@ -767,12 +780,16 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
                 )}
+
               </div>
             )
           })}
+
         </div>
+
       </div>
 
+      {/* MODALES CLIENT ET PRODUIT */}
       {showClientModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
@@ -780,7 +797,7 @@ export default function NewDocumentPage() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <UserPlus className="w-5 h-5 mr-2 text-blue-600" /> Ajouter un client
+              <UserPlus className="w-5 h-5 mr-2 text-blue-600" /> {t.newClient}
             </h3>
             <form onSubmit={handleSaveClient} className="space-y-3 text-xs">
               <input
@@ -813,7 +830,7 @@ export default function NewDocumentPage() {
                 className="w-full border p-2 rounded outline-none text-gray-900 bg-white"
               />
               <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
-                Enregistrer le client
+                {t.save}
               </button>
             </form>
           </div>
@@ -827,12 +844,12 @@ export default function NewDocumentPage() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <PackagePlus className="w-5 h-5 mr-2 text-blue-600" /> Creer un nouveau produit
+              <PackagePlus className="w-5 h-5 mr-2 text-blue-600" /> Nouveau produit
             </h3>
             <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
               <input
                 type="text"
-                placeholder="Designation *"
+                placeholder="Désignation *"
                 required
                 value={newProduct.label}
                 onChange={(e) => setNewProduct({ ...newProduct, label: e.target.value })}
@@ -853,7 +870,7 @@ export default function NewDocumentPage() {
                   onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
                   className="border p-2 rounded outline-none text-gray-900 bg-white"
                 >
-                  <option value="Unite">Unite</option>
+                  <option value="Unité">Unité</option>
                   <option value="Heure">Heure</option>
                   <option value="Jour">Jour</option>
                   <option value="m²">m²</option>
@@ -861,12 +878,13 @@ export default function NewDocumentPage() {
                 </select>
               </div>
               <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
-                Ajouter a la ligne
+                {t.save}
               </button>
             </form>
           </div>
         </div>
       )}
+
     </div>
   )
 }
