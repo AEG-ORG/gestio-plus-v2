@@ -24,9 +24,14 @@ export function calculateTotalTtc(items: Item[], vatMode: VatMode, globalVatRate
 export function getStatusLabel(status: DocumentStatus): string {
   switch (status) {
     case 'draft': return 'Brouillon'
-    case 'sent': return 'Envoyé'
+    case 'sent': return 'Envoyé(e)'
     case 'accepted': return 'Accepté / Signé'
     case 'rejected': return 'Refusé'
     case 'expired': return 'Expiré'
+    case 'paid': return 'Payée'
+    case 'partially_paid': return 'Partiellement payée'
+    case 'overdue': return 'En retard'
+    case 'cancelled': return 'Annulée'
+    default: return status
   }
 }

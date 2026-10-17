@@ -6,6 +6,8 @@ import {
   Item,
   CatalogProduct,
   DocumentStatus,
+  QuoteStatus,
+  InvoiceStatus,
   DocumentType,
   VatMode
 } from '@/types'
@@ -89,6 +91,12 @@ export default function NewDocumentPage() {
     setValidUntilDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'))
   }, [])
 
+  // Adaptation dynamique du statut au changement de type (Devis vs Facture)
+  const handleTypeChange = (newType: DocumentType) => {
+    setType(newType)
+    setStatus('draft') // Remise à zéro propre sur le statut brouillon
+  }
+
   // Logo Upload
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -134,7 +142,7 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  // Calculs issus du module utilitaire
+  // Calculs
   const subtotalHt = calculateSubtotalHt(items)
   const totalVat = calculateTotalVat(items, vatMode, globalVatRate)
   const totalTtc = calculateTotalTtc(items, vatMode, globalVatRate)
@@ -222,6 +230,7 @@ export default function NewDocumentPage() {
     }
   }
 
+  // Rendu visuel du badge du statut selon le type
   const getStatusBadge = (st: DocumentStatus) => {
     switch (st) {
       case 'draft':
@@ -234,6 +243,16 @@ export default function NewDocumentPage() {
         return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">REFUSÉ</span>
       case 'expired':
         return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">EXPIRÉ</span>
+      case 'paid':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">PAYÉE</span>
+      case 'partially_paid':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-300">PARTIELLEMENT PAYÉE</span>
+      case 'overdue':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">EN RETARD</span>
+      case 'cancelled':
+        return <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-600 border border-gray-400">ANNULÉE</span>
+      default:
+        return null
     }
   }
 
@@ -247,7 +266,7 @@ export default function NewDocumentPage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
       
-      {/* CSS strict d'impression A4 avec conservation des couleurs */}
+      {/* CSS d'impression A4 */}
       <style jsx global>{`
         @media print {
           @page {
@@ -342,10 +361,10 @@ export default function NewDocumentPage() {
         </div>
       )}
 
-      {/* Grille principale 2 Colonnes */}
+      {/* Grille 2 Colonnes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLONNE GAUCHE : Formulaire de Saisie */}
+        {/* COLONNE GAUCHE : Saisie */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           {/* Logo Artisan & Infos */}
@@ -390,13 +409,13 @@ export default function NewDocumentPage() {
             </div>
           </div>
 
-          {/* Paramètres principaux + Statuts légaux */}
+          {/* Paramètres principaux : Type / Statut / TVA */}
           <div className="grid grid-cols-3 gap-3 pb-2 border-b">
             <div>
               <label className="block text-xs font-semibold text-gray-900 mb-1">Type document</label>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as DocumentType)}
+                onChange={(e) => handleTypeChange(e.target.value as DocumentType)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="quote">Devis</option>
@@ -405,17 +424,30 @@ export default function NewDocumentPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Statut légal</label>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Statut</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as DocumentStatus)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <option value="draft">Brouillon</option>
-                <option value="sent">Envoyé</option>
-                <option value="accepted">Accepté / Signé</option>
-                <option value="rejected">Refusé</option>
-                <option value="expired">Expiré</option>
+                {type === 'quote' ? (
+                  <>
+                    <option value="draft">Brouillon</option>
+                    <option value="sent">Envoyé</option>
+                    <option value="accepted">Accepté / Signé</option>
+                    <option value="rejected">Refusé</option>
+                    <option value="expired">Expiré</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="draft">Brouillon</option>
+                    <option value="sent">Envoyée</option>
+                    <option value="paid">Payée</option>
+                    <option value="partially_paid">Partiellement payée</option>
+                    <option value="overdue">En retard</option>
+                    <option value="cancelled">Annulée</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -498,7 +530,7 @@ export default function NewDocumentPage() {
             />
           </div>
 
-          {/* Section Lignes Articles */}
+          {/* Lignes Articles */}
           <div className="space-y-3 pt-1">
             <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Lignes d'articles</h2>
 

@@ -1,5 +1,7 @@
 export type DocumentType = 'quote' | 'invoice' | 'credit_note'
-export type DocumentStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
+export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'partially_paid' | 'overdue' | 'cancelled'
+export type DocumentStatus = QuoteStatus | InvoiceStatus
 export type VatMode = 'global' | 'per_product'
 
 export interface Item {
