@@ -52,7 +52,7 @@ export default function DocumentTemplate({
         template === 'corporate' ? 'border-blue-800 border-2' : 'border-gray-200'
       }`}
     >
-      {/* 1. EN-TÊTE FIXE ET NON MODIFIABLE DIRECTEMENT DANS LE DOCUMENT */}
+      {/* 1. EN-TÊTE FIXE */}
       <div className="space-y-4">
         {template === 'classic' && (
           <div>
@@ -172,8 +172,8 @@ export default function DocumentTemplate({
         </div>
       </div>
 
-      {/* 3. PIED DE PAGE FIXE ET CONDITIONS */}
-      <div className="pt-2 text-[10px] text-gray-700 mt-6" style={{ borderTop: '2px solid #1e3a8a' }}>
+      {/* 3. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES */}
+      <div className="pt-2 text-[10px] text-gray-700 mt-auto" style={{ borderTop: '2px solid #1e3a8a' }}>
         <div className="mb-1.5">
           <span className="font-bold uppercase tracking-wider text-blue-900">{t.conditions} :</span>{' '}
           {conditions}
