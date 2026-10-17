@@ -404,13 +404,22 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-7 flex gap-1">
-                      <input
+         /*             <input
                         type="text"
                         placeholder="Désignation de la prestation"
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
                       />
+			*/		  
+					  <textarea
+						  rows={2}
+						  placeholder="Désignation de la prestation"
+						  value={item.description}
+						  onChange={(e) => updateItem(index, 'description', e.target.value)}
+						  className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500 resize-y"
+						/>
+					  
                       <button
                         type="button"
                         onClick={() => {
@@ -594,43 +603,43 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* Tableau des Articles */}
-                  <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-blue-800 text-white font-bold">
-                        <tr>
-                          <th className="py-2 px-3">Description</th>
-                          <th className="py-2 px-2 text-center w-16">Qté</th>
-                          <th className="py-2 px-3 text-right w-20">Prix U.</th>
-                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">TVA</th>}
-                          <th className="py-2 px-3 text-right w-24">Total HT</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100 bg-gray-50/50">
-                        {pageItems.map((item, idx) => (
-                          <tr key={idx}>
-                            <td className="py-1.5 px-3 text-gray-900 font-medium">
-                              {item.description || 'Ligne de prestation'}
-                            </td>
-                            <td className="py-1.5 px-2 text-center text-gray-700">
-                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
-                            </td>
-                            <td className="py-1.5 px-3 text-right text-gray-700">
-                              {item.unit_price.toFixed(2)}€
-                            </td>
-                            {vatMode === 'per_product' && (
-                              <td className="py-1.5 px-2 text-right text-gray-600">
-                                {item.vat_rate}%
-                              </td>
-                            )}
-                            <td className="py-1.5 px-3 text-right font-semibold text-gray-900">
-                              {getItemTotalHt(item).toFixed(2)}€
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {/* Tableau des Articles A4 avec largeurs fixes et retour à la ligne automatique */}
+					<div className="overflow-hidden rounded-md mb-3 border border-gray-200">
+					  <table className="w-full text-left text-xs table-fixed border-collapse">
+						<thead className="bg-blue-800 text-white font-bold">
+						  <tr>
+							<th className="py-2 px-3">Description</th>
+							<th className="py-2 px-2 text-center w-16">Qté</th>
+							<th className="py-2 px-3 text-right w-20">Prix U.</th>
+							{vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">TVA</th>}
+							<th className="py-2 px-3 text-right w-24">Total HT</th>
+						  </tr>
+						</thead>
+						<tbody className="divide-y divide-gray-100 bg-gray-50/50">
+						  {pageItems.map((item, idx) => (
+							<tr key={idx} className="align-top">
+							  <td className="py-2 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
+								{item.description || 'Ligne de prestation'}
+							  </td>
+							  <td className="py-2 px-2 text-center text-gray-700 whitespace-nowrap">
+								{item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+							  </td>
+							  <td className="py-2 px-3 text-right text-gray-700 whitespace-nowrap">
+								{item.unit_price.toFixed(2)}€
+							  </td>
+							  {vatMode === 'per_product' && (
+								<td className="py-2 px-2 text-right text-gray-600 whitespace-nowrap">
+								  {item.vat_rate}%
+								</td>
+							  )}
+							  <td className="py-2 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+								{getItemTotalHt(item).toFixed(2)}€
+							  </td>
+							</tr>
+						  ))}
+						</tbody>
+					  </table>
+					</div>
 
                   {/* Totaux (Dernière Page) */}
                   {isLastPage && (
