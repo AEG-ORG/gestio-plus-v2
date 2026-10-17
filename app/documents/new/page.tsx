@@ -32,7 +32,6 @@ import {
 import Link from 'next/link'
 
 export default function NewDocumentPage() {
-  // Document State
   const [type, setType] = useState<DocumentType>('quote')
   const [status, setStatus] = useState<DocumentStatus>('draft')
   const [language, setLanguage] = useState<Language>('fr')
@@ -42,49 +41,40 @@ export default function NewDocumentPage() {
   const [clientCompany, setClientCompany] = useState('COGIP')
   const [clientAddress, setClientAddress] = useState('13, quai Branly\n75002 Paris')
   const [clientEmail, setClientEmail] = useState('marie.philippe@cogip.fr')
-  const [documentDescription, setDocumentDescription] = useState('Prestation de rénovation et d\'aménagement')
+  const [documentDescription, setDocumentDescription] = useState('Prestation de renovation et d\'amenagement')
   const [conditions, setConditions] = useState(
-    'Règlement : [30 % à la commande, solde à la livraison] — Mode : [Virement bancaire] — Pénalités de retard : taux directeur BCE + 10 pts. Délai de rétractation : 14 jours.'
+    'Reglement : [30 % a la commande, solde a la livraison] — Mode : [Virement bancaire]'
   )
   const [companyLogo, setCompanyLogo] = useState<string | null>(null)
 
-  // Artisan Info
   const [companyName, setCompanyName] = useState('BATIPRO SARL')
-  const [companyAddress, setCompanyAddress] = useState('123 Rue de la République, 75011 Paris')
+  const [companyAddress, setCompanyAddress] = useState('123 Rue de la Republique, 75011 Paris')
   const [companyPhone, setCompanyPhone] = useState('01 23 45 67 89')
   const [companyWeb, setCompanyWeb] = useState('www.batipro-renov.fr')
 
-  // TVA State
   const [vatMode, setVatMode] = useState<VatMode>('global')
   const [globalVatRate, setGlobalVatRate] = useState<number>(20)
 
-  // Catalogue
   const [catalog] = useState<CatalogProduct[]>([
-    { id: '1', label: 'Prestation de conseil & étude', unit_price: 100, unit: 'Heure', vat_rate: 20 },
+    { id: '1', label: 'Prestation de conseil et etude', unit_price: 100, unit: 'Heure', vat_rate: 20 },
     { id: '2', label: 'Peinture murale acrylique', unit_price: 45, unit: 'm²', vat_rate: 10 },
-    { id: '3', label: 'Pose de revêtement de sol PVC', unit_price: 60, unit: 'm²', vat_rate: 20 },
-    { id: '4', label: 'Forfait installation sanitaire', unit_price: 350, unit: 'Forfait', vat_rate: 20 },
+    { id: '3', label: 'Pose de rewetement de sol', unit_price: 60, unit: 'm²', vat_rate: 20 },
   ])
 
-  // Articles
   const [items, setItems] = useState<Item[]>([
-    { description: 'Prestation 1 - Préparation des supports', quantity: 5, unit: 'Unité', unit_price: 100, vat_rate: 20 },
-    { description: 'Prestation 2 - Application sous-couche', quantity: 5, unit: 'Unité', unit_price: 100, vat_rate: 20 },
-    { description: 'Prestation 3 - Finitions et fin de chantier', quantity: 5, unit: 'Unité', unit_price: 100, vat_rate: 20 }
+    { description: 'Prestation 1 - Preparation des supports', quantity: 5, unit: 'Unite', unit_price: 100, vat_rate: 20 }
   ])
 
-  // Modales
   const [showClientModal, setShowClientModal] = useState(false)
   const [showProductModal, setShowProductModal] = useState(false)
   const [activeItemIndexForProduct, setActiveItemIndexForProduct] = useState<number | null>(null)
 
   const [newClient, setNewClient] = useState({ name: '', company: '', email: '', address: '' })
-  const [newProduct, setNewProduct] = useState({ label: '', unit_price: 0, unit: 'Unité', vat_rate: 20 })
+  const [newProduct, setNewProduct] = useState({ label: '', unit_price: 0, unit: 'Unite', vat_rate: 20 })
 
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Dates
   const [currentDate, setCurrentDate] = useState<string>('')
   const [validUntilDate, setValidUntilDate] = useState<string>('')
 
@@ -110,7 +100,7 @@ export default function NewDocumentPage() {
   const addItem = () => {
     setItems([
       ...items,
-      { description: '', quantity: 1, unit: 'Unité', unit_price: 0, vat_rate: vatMode === 'global' ? globalVatRate : 20 }
+      { description: '', quantity: 1, unit: 'Unite', unit_price: 0, vat_rate: vatMode === 'global' ? globalVatRate : 20 }
     ])
   }
 
@@ -148,7 +138,7 @@ export default function NewDocumentPage() {
   const handleConvertToInvoice = () => {
     setType('invoice')
     setStatus('draft')
-    setSuccessMessage('Devis converti en Facture ! Vous pouvez vérifier les informations et l\'enregistrer.')
+    setSuccessMessage('Devis converti en Facture avec succes.')
   }
 
   const handlePrint = () => {
@@ -183,7 +173,7 @@ export default function NewDocumentPage() {
     }
 
     setShowProductModal(false)
-    setNewProduct({ label: '', unit_price: 0, unit: 'Unité', vat_rate: 20 })
+    setNewProduct({ label: '', unit_price: 0, unit: 'Unite', vat_rate: 20 })
     setActiveItemIndexForProduct(null)
   }
 
@@ -220,9 +210,9 @@ export default function NewDocumentPage() {
       ])
 
       if (error) throw error
-      setSuccessMessage(`Document ${documentNumber} enregistré avec succès !`)
+      setSuccessMessage('Document enregistre avec succes !')
     } catch (err: any) {
-      alert("Erreur lors de l'enregistrement : " + err.message)
+      alert('Erreur lors de l enregistrement : ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -261,57 +251,25 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-      
       <style jsx global>{`
         @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-          body {
-            background: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          #printable-area {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-          }
-          .a4-page {
-            page-break-after: always;
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            padding: 15mm !important;
-            width: 210mm !important;
-            height: 297mm !important;
-          }
+          @page { size: A4 portrait; margin: 0; }
+          body { background: white !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .no-print { display: none !important; }
+          #printable-area { display: block !important; position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
+          .a4-page { page-break-after: always; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 15mm !important; width: 210mm !important; height: 297mm !important; }
         }
       `}</style>
 
-      {/* Header Sticky */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
-          
           <div className="flex items-center space-x-3">
             <Link href="/documents" className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium">
               <ArrowLeft className="w-4 h-4 mr-1" /> Documents
             </Link>
             <span className="text-gray-300">|</span>
             <h1 className="text-lg font-bold text-gray-900">
-              Création de {type === 'quote' ? 'Devis' : 'Facture'}
+              Creation de {type === 'quote' ? 'Devis' : 'Facture'}
             </h1>
           </div>
 
@@ -346,7 +304,6 @@ export default function NewDocumentPage() {
               <span>{loading ? 'Enregistrement...' : 'Enregistrer'}</span>
             </button>
           </div>
-
         </div>
       </div>
 
@@ -356,14 +313,11 @@ export default function NewDocumentPage() {
         </div>
       )}
 
-      {/* Grid 2 Colonnes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Saisie */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
-            <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Identité / Logo Artisan</h2>
+            <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Identite / Logo Artisan</h2>
             <div className="flex items-center gap-3">
               {companyLogo ? (
                 <div className="relative w-14 h-14 border rounded bg-white overflow-hidden flex items-center justify-center">
@@ -426,19 +380,19 @@ export default function NewDocumentPage() {
                 {type === 'quote' ? (
                   <>
                     <option value="draft">Brouillon</option>
-                    <option value="sent">Envoyé</option>
-                    <option value="accepted">Accepté / Signé</option>
-                    <option value="rejected">Refusé</option>
-                    <option value="expired">Expiré</option>
+                    <option value="sent">Envoye</option>
+                    <option value="accepted">Accepte / Signe</option>
+                    <option value="rejected">Refuse</option>
+                    <option value="expired">Expire</option>
                   </>
                 ) : (
                   <>
                     <option value="draft">Brouillon</option>
-                    <option value="sent">Envoyée</option>
-                    <option value="paid">Payée</option>
-                    <option value="partially_paid">Partiellement payée</option>
+                    <option value="sent">Envoyee</option>
+                    <option value="paid">Payee</option>
+                    <option value="partially_paid">Partiellement payee</option>
                     <option value="overdue">En retard</option>
-                    <option value="cancelled">Annulée</option>
+                    <option value="cancelled">Annulee</option>
                   </>
                 )}
               </select>
@@ -488,7 +442,6 @@ export default function NewDocumentPage() {
             )}
           </div>
 
-          {/* Client */}
           <div className="space-y-2.5 pt-1">
             <div className="flex justify-between items-center">
               <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Information Client</h2>
@@ -511,14 +464,14 @@ export default function NewDocumentPage() {
               />
               <input
                 type="text"
-                placeholder="Entreprise / Société"
+                placeholder="Entreprise / Societe"
                 value={clientCompany}
                 onChange={(e) => setClientCompany(e.target.value)}
                 className="border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-gray-400"
               />
             </div>
             <textarea
-              placeholder="Adresse complète"
+              placeholder="Adresse complete"
               rows={2}
               value={clientAddress}
               onChange={(e) => setClientAddress(e.target.value)}
@@ -526,19 +479,17 @@ export default function NewDocumentPage() {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-xs font-semibold text-gray-900 mb-1">Description courte du document</label>
             <input
               type="text"
               value={documentDescription}
               onChange={(e) => setDocumentDescription(e.target.value)}
-              placeholder="Ex: Prestation de rénovation"
+              placeholder="Ex: Prestation de renovation"
               className="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-gray-400"
             />
           </div>
 
-          {/* Lignes Articles */}
           <div className="space-y-3 pt-1">
             <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Lignes d'articles</h2>
 
@@ -562,7 +513,7 @@ export default function NewDocumentPage() {
                     <div className="col-span-7 flex gap-1">
                       <input
                         type="text"
-                        placeholder="Désignation de la prestation"
+                        placeholder="Designation de la prestation"
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
@@ -573,7 +524,7 @@ export default function NewDocumentPage() {
                           setActiveItemIndexForProduct(index)
                           setShowProductModal(true)
                         }}
-                        title="Créer nouveau produit"
+                        title="Creer nouveau produit"
                         className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300"
                       >
                         <PackagePlus className="w-4 h-4" />
@@ -583,7 +534,7 @@ export default function NewDocumentPage() {
 
                   <div className="grid grid-cols-12 gap-2 items-center">
                     <div className="col-span-3">
-                      <label className="block text-[10px] font-semibold text-gray-700">Qté</label>
+                      <label className="block text-[10px] font-semibold text-gray-700">Qte</label>
                       <input
                         type="number"
                         min="1"
@@ -594,13 +545,13 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-3">
-                      <label className="block text-[10px] font-semibold text-gray-700">Unité</label>
+                      <label className="block text-[10px] font-semibold text-gray-700">Unite</label>
                       <select
                         value={item.unit}
                         onChange={(e) => updateItem(index, 'unit', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 outline-none bg-white font-medium"
                       >
-                        <option value="Unité">Unité</option>
+                        <option value="Unite">Unite</option>
                         <option value="Heure">Heure</option>
                         <option value="Jour">Jour</option>
                         <option value="m²">m²</option>
@@ -651,7 +602,6 @@ export default function NewDocumentPage() {
                       </button>
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>
@@ -665,10 +615,9 @@ export default function NewDocumentPage() {
             </button>
           </div>
 
-          {/* Conditions */}
           <div className="pt-1">
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-1">
-              Conditions Générales de Règlement
+              Conditions Generales de Reglement
             </label>
             <textarea
               rows={2}
@@ -677,13 +626,9 @@ export default function NewDocumentPage() {
               className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
-
         </div>
 
-
-        {/* APERÇU A4 MULTILINGUE */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
-          
           {pages.map((pageItems, pageIndex) => {
             const isLastPage = pageIndex === totalPages - 1
 
@@ -692,9 +637,7 @@ export default function NewDocumentPage() {
                 key={pageIndex}
                 className="a4-page bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
-                
                 <div>
-                  {/* En-tête Répété */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       {companyLogo ? (
@@ -720,7 +663,6 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Titre Traduit */}
                   <div className="flex justify-between items-center my-3 border-b pb-2">
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
                       {type === 'quote' ? t.quote : t.invoice}
@@ -728,7 +670,6 @@ export default function NewDocumentPage() {
                     <div>{getStatusBadge(status)}</div>
                   </div>
 
-                  {/* Infos Client / Méta Traduites */}
                   <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 border-blue-800 pb-2.5">
                     <div className="space-y-0.5">
                       <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
@@ -743,7 +684,6 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Description courte */}
                   {pageIndex === 0 && documentDescription && (
                     <div className="mb-3 text-xs">
                       <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">{t.description}</span>
@@ -751,7 +691,6 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* Tableau Traduit */}
                   <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
                     <table className="w-full text-left text-xs table-fixed border-collapse">
                       <thead className="bg-blue-800 text-white font-bold">
@@ -770,7 +709,7 @@ export default function NewDocumentPage() {
                               {item.description || 'Ligne de prestation'}
                             </td>
                             <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
-                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+                              {item.quantity} {item.unit !== 'Unite' ? item.unit : ''}
                             </td>
                             <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
                               {item.unit_price.toFixed(2)}€
@@ -789,7 +728,6 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* Totaux Traduits */}
                   {isLastPage && (
                     <div className="flex justify-end text-xs mb-4">
                       <div className="w-56 space-y-1">
@@ -808,10 +746,8 @@ export default function NewDocumentPage() {
                       </div>
                     </div>
                   )}
-
                 </div>
 
-                {/* Bas de page Traduit */}
                 {isLastPage && (
                   <div className="border-t-2 border-blue-800 pt-2.5 space-y-2 text-[10px] text-gray-700 mt-auto">
                     <div>
@@ -831,16 +767,12 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
                 )}
-
               </div>
             )
           })}
-
         </div>
-
       </div>
 
-      {/* MODALE CLIENT */}
       {showClientModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
@@ -881,3 +813,60 @@ export default function NewDocumentPage() {
                 className="w-full border p-2 rounded outline-none text-gray-900 bg-white"
               />
               <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
+                Enregistrer le client
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showProductModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+            <button onClick={() => setShowProductModal(false)} className="absolute top-4 right-4 text-gray-400">
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <PackagePlus className="w-5 h-5 mr-2 text-blue-600" /> Creer un nouveau produit
+            </h3>
+            <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
+              <input
+                type="text"
+                placeholder="Designation *"
+                required
+                value={newProduct.label}
+                onChange={(e) => setNewProduct({ ...newProduct, label: e.target.value })}
+                className="w-full border p-2 rounded outline-none text-gray-900 bg-white"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Prix Unitaire HT (€)"
+                  required
+                  value={newProduct.unit_price}
+                  onChange={(e) => setNewProduct({ ...newProduct, unit_price: parseFloat(e.target.value) || 0 })}
+                  className="border p-2 rounded outline-none text-gray-900 bg-white"
+                />
+                <select
+                  value={newProduct.unit}
+                  onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
+                  className="border p-2 rounded outline-none text-gray-900 bg-white"
+                >
+                  <option value="Unite">Unite</option>
+                  <option value="Heure">Heure</option>
+                  <option value="Jour">Jour</option>
+                  <option value="m²">m²</option>
+                  <option value="Forfait">Forfait</option>
+                </select>
+              </div>
+              <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
+                Ajouter a la ligne
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
