@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
   Item,
@@ -27,9 +27,106 @@ import {
   X,
   Upload,
   Printer,
-  FileCheck
+  FileCheck,
+  ChevronDown
 } from 'lucide-react'
 import Link from 'next/link'
+
+interface LanguageSelectorProps {
+  currentLanguage: Language
+  onLanguageChange: (lang: Language) => void
+}
+
+const languages = [
+  {
+    code: 'fr' as Language,
+    label: 'Français',
+    flag: (
+      <svg className="w-4 h-3 rounded-sm object-cover" viewBox="0 0 640 480">
+        <g fillRule="evenodd" strokeWidth="1pt">
+          <path fill="#fff" d="M0 0h640v480H0z"/>
+          <path fill="#00267f" d="M0 0h213.3v480H0z"/>
+          <path fill="#f31830" d="M426.7 0H640v480H426.7z"/>
+        </g>
+      </svg>
+    )
+  },
+  {
+    code: 'es' as Language,
+    label: 'Español',
+    flag: (
+      <svg className="w-4 h-3 rounded-sm object-cover" viewBox="0 0 640 480">
+        <path fill="#c60b1e" d="M0 0h640v480H0z"/>
+        <path fill="#ffc400" d="M0 120h640v240H0z"/>
+      </svg>
+    )
+  },
+  {
+    code: 'en' as Language,
+    label: 'English',
+    flag: (
+      <svg className="w-4 h-3 rounded-sm object-cover" viewBox="0 0 640 480">
+        <path fill="#012169" d="M0 0h640v480H0z"/>
+        <path fill="#fff" d="m0 0 640 480M640 0 0 480" stroke="#fff" strokeWidth="60"/>
+        <path fill="#c8102e" d="m0 0 640 480M640 0 0 480" stroke="#c8102e" strokeWidth="40"/>
+        <path fill="#fff" d="M280 0h80v480h-80zM0 200h640v80H0z"/>
+        <path fill="#c8102e" d="M300 0h40v480h-40zM0 220h640v40H0z"/>
+      </svg>
+    )
+  }
+]
+
+function LanguageSelector({ currentLanguage, onLanguageChange }: LanguageSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const selected = languages.find((l) => l.code === currentLanguage) || languages[0]
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 bg-gray-50 border border-gray-300 hover:bg-gray-100 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-800 shadow-sm transition outline-none"
+      >
+        {selected.flag}
+        <span>{selected.label}</span>
+        <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
+          {languages.map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => {
+                onLanguageChange(lang.code)
+                setIsOpen(false)
+              }}
+              className={`flex items-center gap-2.5 w-full text-left px-3 py-2 text-xs font-medium hover:bg-blue-50 transition ${
+                currentLanguage === lang.code ? 'bg-blue-50/80 font-bold text-blue-900' : 'text-gray-700'
+              }`}
+            >
+              {lang.flag}
+              <span>{lang.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function NewDocumentPage() {
   const [type, setType] = useState<DocumentType>('quote')
@@ -261,7 +358,7 @@ export default function NewDocumentPage() {
         }
       `}</style>
 
-      {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE EN HAUT À DROITE */}
+      {/* HEADER FIXE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           
@@ -276,19 +373,6 @@ export default function NewDocumentPage() {
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* SÉLECTEUR DE LANGUE GLOBAL (Drapeaux en haut à droite) */}
-            <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-2 py-1 shadow-sm">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="bg-transparent text-xs text-gray-900 font-semibold outline-none cursor-pointer"
-              >
-                <option value="fr">🇫🇷 Français</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="en">🇬🇧 English</option>
-              </select>
-            </div>
-
             {type === 'quote' && status === 'accepted' && (
               <button
                 onClick={handleConvertToInvoice}
@@ -318,6 +402,12 @@ export default function NewDocumentPage() {
               <Save className="w-4 h-4" />
               <span>{loading ? t.saving : t.save}</span>
             </button>
+
+            {/* SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
+            <LanguageSelector
+              currentLanguage={language}
+              onLanguageChange={(lang) => setLanguage(lang)}
+            />
           </div>
 
         </div>
@@ -329,10 +419,10 @@ export default function NewDocumentPage() {
         </div>
       )}
 
-      {/* GRILLE 2 COLONNES : FORMULAIRE DE GAUCHE & APERÇU A4 DE DROITE */}
+      {/* GRILLE 2 COLONNES */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLONNE GAUCHE (Formulaire de saisie) */}
+        {/* COLONNE GAUCHE (Formulaire) */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
@@ -637,7 +727,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE (Aperçu A4 Multilingue) */}
+        {/* COLONNE DROITE (Aperçu A4) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
