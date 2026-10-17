@@ -444,19 +444,21 @@ export default function NewDocumentPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="fr">🇫🇷 Français</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="en">🇬🇧 English</option>
-              </select>
-            </div>
-          </div>
+			{/* Composant de sélection de langue avec image SVG de drapeaux */}
+			<div className="relative">
+			  <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
+			  <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1.5 bg-white">
+				<select
+				  value={language}
+				  onChange={(e) => setLanguage(e.target.value as Language)}
+				  className="w-full text-xs text-gray-900 font-medium outline-none bg-transparent cursor-pointer"
+				>
+				  <option value="fr">🇫🇷  Français</option>
+				  <option value="es">🇪🇸  Español</option>
+				  <option value="en">🇬🇧  English</option>
+				</select>
+			  </div>
+			</div>
 
           <div className="grid grid-cols-2 gap-3 pb-2 border-b">
             <div>
