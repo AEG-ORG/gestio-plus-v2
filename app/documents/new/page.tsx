@@ -348,78 +348,64 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-		<style jsx global>{`
-		  @media print {
-			@page {
-			  size: A4 portrait;
-			  margin: 0;
-			}
+<style jsx global>{`
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
 
-			/* Forcer tout l'environnement sur fond blanc pur */
-			html, body, div, main, section {
-			  background: white !important;
-			  background-color: white !important;
-			  box-shadow: none !important;
-			  border: none !important;
-			}
+    html, body {
+      width: 210mm !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 
-			body {
-			  width: 210mm !important;
-			  height: 297mm !important;
-			  margin: 0 !important;
-			  padding: 0 !important;
-			  overflow: hidden !important;
-			  -webkit-print-color-adjust: exact !important;
-			  print-color-adjust: exact !important;
-			}
+    .no-print {
+      display: none !important;
+    }
 
-			.no-print {
-			  display: none !important;
-			}
+    #printable-area {
+      display: block !important;
+      position: static !important;
+      width: 210mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
 
-			/* Afficher uniquement la zone imprimable à la racine */
-			#printable-area {
-			  display: block !important;
-			  position: absolute !important;
-			  left: 0 !important;
-			  top: 0 !important;
-			  width: 210mm !important;
-			  height: 297mm !important;
-			  margin: 0 !important;
-			  padding: 0 !important;
-			  background: white !important;
-			  border: none !important;
-			  box-shadow: none !important;
-			}
+    .a4-page {
+      width: 210mm !important;
+      min-height: 280mm !important;
+      max-height: 287mm !important;
+      box-sizing: border-box !important;
+      padding: 10mm 15mm 15mm 15mm !important; /* Marge inférieure de 15mm pour sécuriser le pied de page */
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      background: white !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
 
-			.a4-page {
-			  width: 210mm !important;
-			  height: 297mm !important;
-			  max-height: 297mm !important;
-			  box-sizing: border-box !important;
-			  padding: 10mm 15mm !important;
-			  margin: 0 !important;
-			  border: none !important;
-			  border-radius: 0 !important;
-			  box-shadow: none !important;
-			  outline: none !important;
-			  background: white !important;
-			  background-color: white !important;
-			  -webkit-print-color-adjust: exact !important;
-			  print-color-adjust: exact !important;
-			  display: flex !important;
-			  flex-direction: column !important;
-			  justify-content: space-between !important;
-			  overflow: hidden !important;
-			  page-break-after: always;
-			  page-break-inside: avoid;
-			}
-
-			::-webkit-scrollbar {
-			  display: none !important;
-			}
-		  }
-		`}</style>
+    ::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+`}</style>
 
       {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
@@ -914,26 +900,26 @@ export default function NewDocumentPage() {
 
                 </div>
 
-                {/* Bas de page Traduit */}
-                {isLastPage && (
-                  <div className="border-t-2 border-blue-800 pt-2 space-y-1.5 text-[10px] text-gray-700 mt-2">
-                    <div>
-                      <span className="font-bold text-blue-900 uppercase">{t.conditions}</span>{' '}
-                      {conditions}
-                    </div>
+				{/* Bas de page Traduit */}
+				{isLastPage && (
+				  <div className="border-t-2 border-blue-800 pt-3 mt-4 space-y-2 text-[10px] text-gray-700 shrink-0">
+					<div>
+					  <span className="font-bold text-blue-900 uppercase">{t.conditions}</span>{' '}
+					  {conditions}
+					</div>
 
-                    <div className="pt-2 flex justify-around text-center">
-                      <div className="w-36 border-t border-gray-400 pt-1">
-                        <p className="font-bold text-gray-900">{t.goodForAgreement}</p>
-                        <p className="text-[9px] text-gray-500 mt-2">{t.signatureClient}</p>
-                      </div>
-                      <div className="w-36 border-t border-gray-400 pt-1">
-                        <p className="font-bold text-gray-900">DATE</p>
-                        <p className="text-[9px] text-gray-500 mt-2">{t.dateAcceptance}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+					<div className="pt-2 flex justify-around text-center">
+					  <div className="w-36 border-t border-gray-400 pt-1">
+						<p className="font-bold text-gray-900">{t.goodForAgreement}</p>
+						<p className="text-[9px] text-gray-500 mt-3">{t.signatureClient}</p>
+					  </div>
+					  <div className="w-36 border-t border-gray-400 pt-1">
+						<p className="font-bold text-gray-900">DATE</p>
+						<p className="text-[9px] text-gray-500 mt-3">{t.dateAcceptance}</p>
+					  </div>
+					</div>
+				  </div>
+				)}
 
               </div>
             )
