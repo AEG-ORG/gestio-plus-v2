@@ -444,21 +444,19 @@ export default function NewDocumentPage() {
               </select>
             </div>
 
-			{/* Composant de sélection de langue avec image SVG de drapeaux */}
-			<div className="relative">
-			  <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
-			  <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1.5 bg-white">
-				<select
-				  value={language}
-				  onChange={(e) => setLanguage(e.target.value as Language)}
-				  className="w-full text-xs text-gray-900 font-medium outline-none bg-transparent cursor-pointer"
-				>
-				  <option value="fr">🇫🇷  Français</option>
-				  <option value="es">🇪🇸  Español</option>
-				  <option value="en">🇬🇧  English</option>
-				</select>
-			  </div>
-			</div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Langue A4</label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-3 pb-2 border-b">
             <div>
@@ -883,62 +881,3 @@ export default function NewDocumentPage() {
                 className="w-full border p-2 rounded outline-none text-gray-900 bg-white"
               />
               <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
-                Enregistrer le client
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODALE PRODUIT */}
-      {showProductModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
-            <button onClick={() => setShowProductModal(false)} className="absolute top-4 right-4 text-gray-400">
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <PackagePlus className="w-5 h-5 mr-2 text-blue-600" /> Créer un nouveau produit
-            </h3>
-            <form onSubmit={handleSaveProduct} className="space-y-3 text-xs">
-              <input
-                type="text"
-                placeholder="Désignation *"
-                required
-                value={newProduct.label}
-                onChange={(e) => setNewProduct({ ...newProduct, label: e.target.value })}
-                className="w-full border p-2 rounded outline-none text-gray-900 bg-white"
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Prix Unitaire HT (€)"
-                  required
-                  value={newProduct.unit_price}
-                  onChange={(e) => setNewProduct({ ...newProduct, unit_price: parseFloat(e.target.value) || 0 })}
-                  className="border p-2 rounded outline-none text-gray-900 bg-white"
-                />
-                <select
-                  value={newProduct.unit}
-                  onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
-                  className="border p-2 rounded outline-none text-gray-900 bg-white"
-                >
-                  <option value="Unité">Unité</option>
-                  <option value="Heure">Heure</option>
-                  <option value="Jour">Jour</option>
-                  <option value="m²">m²</option>
-                  <option value="Forfait">Forfait</option>
-                </select>
-              </div>
-              <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold">
-                Ajouter à la ligne
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-    </div>
-  )
-}
