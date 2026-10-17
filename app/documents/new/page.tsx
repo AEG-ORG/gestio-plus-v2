@@ -2,30 +2,37 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload, Printer, FileCheck } from 'lucide-react'
+import {
+  Item,
+  CatalogProduct,
+  DocumentStatus,
+  DocumentType,
+  VatMode
+} from '@/types'
+import {
+  calculateItemTotalHt,
+  calculateSubtotalHt,
+  calculateTotalVat,
+  calculateTotalTtc,
+  getStatusLabel
+} from '@/lib/document-utils'
+import {
+  Plus,
+  Trash2,
+  Save,
+  ArrowLeft,
+  UserPlus,
+  PackagePlus,
+  X,
+  Upload,
+  Printer,
+  FileCheck
+} from 'lucide-react'
 import Link from 'next/link'
-
-interface Item {
-  description: string
-  quantity: number
-  unit: string
-  unit_price: number
-  vat_rate: number
-}
-
-interface CatalogProduct {
-  id: string
-  label: string
-  unit_price: number
-  unit: string
-  vat_rate: number
-}
-
-type DocumentStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
 
 export default function NewDocumentPage() {
   // Document State
-  const [type, setType] = useState<'quote' | 'invoice'>('quote')
+  const [type, setType] = useState<DocumentType>('quote')
   const [status, setStatus] = useState<DocumentStatus>('draft')
   const [clientName, setClientName] = useState('Marie Philippe')
   const [clientCompany, setClientCompany] = useState('COGIP')
@@ -44,7 +51,7 @@ export default function NewDocumentPage() {
   const [companyWeb, setCompanyWeb] = useState('www.batipro-renov.fr')
 
   // TVA State
-  const [vatMode, setVatMode] = useState<'global' | 'per_product'>('global')
+  const [vatMode, setVatMode] = useState<VatMode>('global')
   const [globalVatRate, setGlobalVatRate] = useState<number>(20)
 
   // Catalogue
@@ -92,7 +99,7 @@ export default function NewDocumentPage() {
     }
   }
 
-  // Articles Handlers
+  // Handlers Articles
   const addItem = () => {
     setItems([
       ...items,
@@ -127,16 +134,22 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  // Calculs
-  const getItemTotalHt = (item: Item) => (item.quantity || 0) * (item.unit_price || 0)
-  const subtotalHt = items.reduce((acc, item) => acc + getItemTotalHt(item), 0)
-  const totalVat = items.reduce((acc, item) => {
-    const rate = vatMode === 'global' ? globalVatRate : item.vat_rate
-    return acc + (getItemTotalHt(item) * (rate / 100))
-  }, 0)
-  const totalTtc = subtotalHt + totalVat
+  // Calculs issus du module utilitaire
+  const subtotalHt = calculateSubtotalHt(items)
+  const totalVat = calculateTotalVat(items, vatMode, globalVatRate)
+  const totalTtc = calculateTotalTtc(items, vatMode, globalVatRate)
 
-  // Save Handlers
+  // Actions
+  const handleConvertToInvoice = () => {
+    setType('invoice')
+    setStatus('draft')
+    setSuccessMessage('Devis converti en Facture ! Vous pouvez vérifier les informations et l\'enregistrer.')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
   const handleSaveClient = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newClient.name) return
@@ -169,19 +182,6 @@ export default function NewDocumentPage() {
     setActiveItemIndexForProduct(null)
   }
 
-  // Action : Facturer le devis (Transformation légale d'un devis accepté en facture)
-  const handleConvertToInvoice = () => {
-    setType('invoice')
-    setStatus('draft')
-    setSuccessMessage('Devis converti en Facture ! Vous pouvez vérifier les informations et l\'enregistrer.')
-  }
-
-  // Impression
-  const handlePrint = () => {
-    window.print()
-  }
-
-  // Supabase Save
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -196,7 +196,7 @@ export default function NewDocumentPage() {
       const formattedItems = items.map(item => ({
         ...item,
         vat_rate: vatMode === 'global' ? globalVatRate : item.vat_rate,
-        total_ht: getItemTotalHt(item)
+        total_ht: calculateItemTotalHt(item)
       }))
 
       const { error } = await supabase.from('documents').insert([
@@ -219,17 +219,6 @@ export default function NewDocumentPage() {
       alert("Erreur lors de l'enregistrement : " + err.message)
     } finally {
       setLoading(false)
-    }
-  }
-
-  // Libellés & Badges des statuts légaux
-  const getStatusLabel = (st: DocumentStatus) => {
-    switch (st) {
-      case 'draft': return 'Brouillon'
-      case 'sent': return 'Envoyé'
-      case 'accepted': return 'Accepté / Signé'
-      case 'rejected': return 'Refusé'
-      case 'expired': return 'Expiré'
     }
   }
 
@@ -258,7 +247,7 @@ export default function NewDocumentPage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
       
-      {/* CSS strict d'impression A4 avec conservation forcée des couleurs et fonds */}
+      {/* CSS strict d'impression A4 avec conservation des couleurs */}
       <style jsx global>{`
         @media print {
           @page {
@@ -313,7 +302,6 @@ export default function NewDocumentPage() {
           </div>
 
           <div className="flex items-center space-x-3">
-            {/* Bouton Légale : Facturer le devis (uniquement sur devis accepté) */}
             {type === 'quote' && status === 'accepted' && (
               <button
                 onClick={handleConvertToInvoice}
@@ -408,7 +396,7 @@ export default function NewDocumentPage() {
               <label className="block text-xs font-semibold text-gray-900 mb-1">Type document</label>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as 'quote' | 'invoice')}
+                onChange={(e) => setType(e.target.value as DocumentType)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="quote">Devis</option>
@@ -435,7 +423,7 @@ export default function NewDocumentPage() {
               <label className="block text-xs font-semibold text-gray-900 mb-1">Gestion TVA</label>
               <select
                 value={vatMode}
-                onChange={(e) => setVatMode(e.target.value as 'global' | 'per_product')}
+                onChange={(e) => setVatMode(e.target.value as VatMode)}
                 className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 <option value="global">TVA Globale</option>
@@ -608,7 +596,7 @@ export default function NewDocumentPage() {
                     ) : (
                       <div className="col-span-2 text-right">
                         <label className="block text-[10px] font-semibold text-gray-700">Total HT</label>
-                        <span className="text-xs font-bold text-gray-900">{getItemTotalHt(item).toFixed(2)} €</span>
+                        <span className="text-xs font-bold text-gray-900">{calculateItemTotalHt(item).toFixed(2)} €</span>
                       </div>
                     )}
 
@@ -653,7 +641,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE : APERÇU A4 (Cible d'impression unique) */}
+        {/* COLONNE DROITE : APERÇU A4 */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -692,7 +680,7 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Titre Document & Badge du Statut Actuel */}
+                  {/* Titre Document & Badge */}
                   <div className="flex justify-between items-center my-3 border-b pb-2">
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
                       {type === 'quote' ? 'DEVIS' : 'FACTURE'}
@@ -753,7 +741,7 @@ export default function NewDocumentPage() {
                               </td>
                             )}
                             <td className="py-1.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
-                              {getItemTotalHt(item).toFixed(2)}€
+                              {calculateItemTotalHt(item).toFixed(2)}€
                             </td>
                           </tr>
                         ))}
