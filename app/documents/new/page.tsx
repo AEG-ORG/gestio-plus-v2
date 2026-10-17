@@ -389,8 +389,8 @@ export default function NewDocumentPage() {
       height: 297mm !important;
       max-height: 297mm !important;
       box-sizing: border-box !important;
-      /* Marges intérieures équilibrées : 12mm en haut/bas pour tout centrer parfaitement */
-      padding: 12mm 15mm 12mm 15mm !important;
+      /* Marges équilibrées et sécurisées */
+      padding: 10mm 15mm 10mm 15mm !important;
       margin: 0 !important;
       border: none !important;
       border-radius: 0 !important;
@@ -401,7 +401,9 @@ export default function NewDocumentPage() {
       print-color-adjust: exact !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
+      /* Suppression du space-between pour que les éléments se suivent naturellement sans descendre trop bas */
+      justify-content: flex-start !important;
+      gap: 12px !important;
       overflow: hidden !important;
       page-break-after: always;
       page-break-inside: avoid;
