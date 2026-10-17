@@ -28,7 +28,10 @@ import {
   Upload,
   Printer,
   FileCheck,
-  ChevronDown
+  ChevronDown,
+  Percent,
+  Euro,
+  PoundSterling
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -152,6 +155,10 @@ export default function NewDocumentPage() {
   const [vatMode, setVatMode] = useState<VatMode>('global')
   const [globalVatRate, setGlobalVatRate] = useState<number>(20)
 
+  // Gestion de la remise
+  const [discountValue, setDiscountValue] = useState<number>(0)
+  const [discountType, setDiscountType] = useState<'percent' | 'eur' | 'gbp'>('percent')
+
   const [catalog] = useState<CatalogProduct[]>([
     { id: '1', label: 'Prestation de conseil & étude', unit_price: 100, unit: 'Heure', vat_rate: 20 },
     { id: '2', label: 'Peinture murale acrylique', unit_price: 45, unit: 'm²', vat_rate: 10 },
@@ -228,9 +235,27 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  const subtotalHt = calculateSubtotalHt(items)
-  const totalVat = calculateTotalVat(items, vatMode, globalVatRate)
-  const totalTtc = calculateTotalTtc(items, vatMode, globalVatRate)
+  // Calculs avec prise en compte de la remise
+  const rawSubtotalHt = calculateSubtotalHt(items)
+  
+  let calculatedDiscountAmount = 0
+  if (discountValue > 0) {
+    if (discountType === 'percent') {
+      calculatedDiscountAmount = (rawSubtotalHt * discountValue) / 100
+    } else {
+      calculatedDiscountAmount = discountValue
+    }
+  }
+  const subtotalHt = Math.max(0, rawSubtotalHt - calculatedDiscountAmount)
+
+  // TVA et TTC recalculés sur le montant HT remisé
+  const totalVat = vatMode === 'global'
+    ? (subtotalHt * globalVatRate) / 100
+    : items.reduce((acc, item) => acc + (calculateItemTotalHt(item) * item.vat_rate) / 100, 0) * (subtotalHt / (rawSubtotalHt || 1))
+
+  const totalTtc = subtotalHt + totalVat
+
+  const discountSymbol = discountType === 'percent' ? '%' : discountType === 'eur' ? '€' : '£'
 
   const handleConvertToInvoice = () => {
     setType('invoice')
@@ -348,71 +373,76 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-<style jsx global>{`
-  @media print {
-    @page {
-      size: A4 portrait;
-      margin: 0 !important;
-    }
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0 !important;
+          }
 
-    html, body {
-      width: 210mm !important;
-      height: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            overflow: hidden !important;
+          }
 
-    .no-print {
-      display: none !important;
-    }
+          .no-print {
+            display: none !important;
+          }
 
-    #printable-area {
-      display: block !important;
-      position: relative !important;
-      width: 210mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
+          #printable-area {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
 
-    .a4-page {
-      width: 210mm !important;
-      min-height: 297mm !important;
-      height: auto !important;
-      box-sizing: border-box !important;
-      padding: 12mm 15mm 12mm 15mm !important;
-      margin: 0 !important;
-      border: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      outline: none !important;
-      background: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: flex-start !important;
-      gap: 16px !important;
-      page-break-after: always;
-      page-break-inside: avoid;
-    }
+          .a4-page {
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
+            padding: 10mm 15mm 10mm 15mm !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
 
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
 
-    ::-webkit-scrollbar {
-      display: none !important;
-    }
-  }
-`}</style>
-      {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
+          ::-webkit-scrollbar {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      {/* HEADER FIXE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           
@@ -589,6 +619,35 @@ export default function NewDocumentPage() {
                 </select>
               </div>
             )}
+          </div>
+
+          {/* GESTION DE LA REMISE */}
+          <div className="pb-2 border-b space-y-2">
+            <label className="block text-xs font-semibold text-gray-900">Remise globale</label>
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-7">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Valeur de la remise"
+                  value={discountValue || ''}
+                  onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none bg-white font-medium"
+                />
+              </div>
+              <div className="col-span-5">
+                <select
+                  value={discountType}
+                  onChange={(e) => setDiscountType(e.target.value as 'percent' | 'eur' | 'gbp')}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none bg-white font-medium"
+                >
+                  <option value="percent">Pourcentage (%)</option>
+                  <option value="eur">Euros (€)</option>
+                  <option value="gbp">Livres (£)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2.5 pt-1">
@@ -780,7 +839,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE (Aperçu A4 au design professionnel et aéré) */}
+        {/* COLONNE DROITE (Aperçu A4 au design professionnel et épuré) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -789,89 +848,87 @@ export default function NewDocumentPage() {
             return (
               <div
                 key={pageIndex}
-                className="a4-page bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
+                className="a4-page bg-white p-7 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
                 
-                {/* EN-TÊTE ÉLÉGANT ET DESIGN */}
+                {/* EN-TÊTE ÉLÉGANT */}
                 <div>
-                  <div className="flex justify-between items-center pb-5 mb-6 border-b-2 border-blue-900">
-                    <div className="flex items-center space-x-4">
+                  <div className="flex justify-between items-center pb-3 mb-3 border-b-2 border-blue-900">
+                    <div className="flex items-center space-x-3">
                       {companyLogo ? (
-                        <img src={companyLogo} alt="Logo" className="h-14 w-auto object-contain" />
+                        <img src={companyLogo} alt="Logo" className="h-12 w-auto object-contain" />
                       ) : (
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shadow-md" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shadow-md" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           G+
                         </div>
                       )}
                       <div>
-                        <span className="font-black text-lg tracking-wide block uppercase" style={{ color: '#1e3a8a' }}>{companyName}</span>
-                        {companyAddress && <p className="text-xs text-gray-500 whitespace-pre-line mt-0.5">{companyAddress}</p>}
-                        {companyPhone && <p className="text-xs text-gray-500">{companyPhone} — {companyWeb}</p>}
+                        <span className="font-black text-base tracking-wide block uppercase" style={{ color: '#1e3a8a' }}>{companyName}</span>
+                        {companyAddress && <p className="text-[10px] text-gray-500 whitespace-pre-line">{companyAddress}</p>}
+                        {companyPhone && <p className="text-[10px] text-gray-500">{companyPhone} — {companyWeb}</p>}
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <h1 className="text-3xl font-black tracking-widest uppercase mb-1" style={{ color: '#1e3a8a' }}>
+                      <h1 className="text-2xl font-black tracking-widest uppercase mb-0.5" style={{ color: '#1e3a8a' }}>
                         {type === 'quote' ? t.quote : t.invoice}
                       </h1>
                       <div className="inline-block">{getStatusBadge(status)}</div>
                     </div>
                   </div>
 
-                  {/* INFORMATIONS DOCUMENT & CLIENT */}
-                  <div className="grid grid-cols-2 gap-6 text-xs mb-6 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
-                    <div className="space-y-1">
-                      <p className="text-gray-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Détails du document</p>
+                  {/* INFORMATIONS DOCUMENT & CLIENT (COMPACTES SANS TITRE LOURD) */}
+                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 py-2 px-3 bg-gray-50/50 rounded-lg border border-gray-200">
+                    <div className="space-y-0.5">
                       <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
                       <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
                       <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
                     </div>
 
-                    <div className="space-y-1 border-l pl-4 border-gray-200">
-                      <p className="text-gray-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Client facturé</p>
+                    <div className="space-y-0.5 border-l pl-3 border-gray-200">
                       <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
                       <p className="font-semibold text-gray-700">{clientCompany}</p>
-                      <p className="whitespace-pre-line text-gray-600 text-[11px] leading-relaxed">{clientAddress || 'Adresse client'}</p>
+                      <p className="whitespace-pre-line text-gray-600 text-[10px] leading-tight">{clientAddress || 'Adresse client'}</p>
                     </div>
                   </div>
 
                   {pageIndex === 0 && documentDescription && (
-                    <div className="mb-4 text-xs bg-blue-50/40 p-3 rounded border border-blue-100">
+                    <div className="mb-3 text-xs bg-blue-50/30 py-1.5 px-3 rounded border border-blue-100">
                       <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description} :</span>
                       <span className="text-gray-800 font-medium">{documentDescription}</span>
                     </div>
                   )}
 
                   {/* TABLEAU DES ARTICLES */}
-                  <div className="overflow-hidden rounded-lg mb-4 border border-gray-200 shadow-sm">
+                  <div className="overflow-hidden rounded-md mb-3 border border-gray-200 shadow-sm">
                     <table className="w-full text-left text-xs table-fixed border-collapse">
                       <thead>
                         <tr style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <th className="py-2.5 px-3 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.descriptionHeader}</th>
-                          <th className="py-2.5 px-2 text-center w-16 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.quantity}</th>
-                          <th className="py-2.5 px-3 text-right w-20 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.unitPrice}</th>
-                          {vatMode === 'per_product' && <th className="py-2.5 px-2 text-right w-14 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.vat}</th>}
-                          <th className="py-2.5 px-3 text-right w-24 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.totalHt}</th>
+                          <th className="py-2 px-3 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.descriptionHeader}</th>
+                          <th className="py-2 px-2 text-center w-16 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.quantity}</th>
+                          <th className="py-2 px-3 text-right w-20 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.unitPrice}</th>
+                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.vat}</th>}
+                          <th className="py-2 px-3 text-right w-24 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.totalHt}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-white">
                         {pageItems.map((item, idx) => (
                           <tr key={idx} className="align-top">
-                            <td className="py-2.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
+                            <td className="py-2 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
                               {item.description || 'Ligne de prestation'}
                             </td>
-                            <td className="py-2.5 px-2 text-center text-gray-700 whitespace-nowrap">
+                            <td className="py-2 px-2 text-center text-gray-700 whitespace-nowrap">
                               {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-gray-700 whitespace-nowrap">
+                            <td className="py-2 px-3 text-right text-gray-700 whitespace-nowrap">
                               {item.unit_price.toFixed(2)}€
                             </td>
                             {vatMode === 'per_product' && (
-                              <td className="py-2.5 px-2 text-right text-gray-600 whitespace-nowrap">
+                              <td className="py-2 px-2 text-right text-gray-600 whitespace-nowrap">
                                 {item.vat_rate}%
                               </td>
                             )}
-                            <td className="py-2.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                            <td className="py-2 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
                               {calculateItemTotalHt(item).toFixed(2)}€
                             </td>
                           </tr>
@@ -880,19 +937,35 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* TOTAUX */}
+                  {/* TOTAUX AVEC REMISE CONDITIONNELLE */}
                   {isLastPage && (
-                    <div className="flex justify-end text-xs mb-6">
-                      <div className="w-60 space-y-1.5 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div className="flex justify-end text-xs mb-3">
+                      <div className="w-56 space-y-1 bg-gray-50/80 p-2.5 rounded-lg border border-gray-200">
                         <div className="flex justify-between text-gray-700">
-                          <span>{t.totalHt}</span>
-                          <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
+                          <span>Sous-total HT</span>
+                          <span className="font-semibold text-gray-900">{rawSubtotalHt.toFixed(2)}€</span>
                         </div>
+
+                        {discountValue > 0 && (
+                          <div className="flex justify-between text-emerald-700 font-medium">
+                            <span>Remise ({discountValue}{discountSymbol})</span>
+                            <span>-{calculatedDiscountAmount.toFixed(2)}€</span>
+                          </div>
+                        )}
+
+                        {discountValue > 0 && (
+                          <div className="flex justify-between text-gray-700 border-t pt-1 border-gray-200">
+                            <span>{t.totalHt} net</span>
+                            <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
+                          </div>
+                        )}
+
                         <div className="flex justify-between text-gray-700">
                           <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
                           <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}€</span>
                         </div>
-                        <div className="flex justify-between p-2.5 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+
+                        <div className="flex justify-between p-2 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           <span>{t.totalTtc}</span>
                           <span>{totalTtc.toFixed(2)}€</span>
                         </div>
@@ -901,22 +974,22 @@ export default function NewDocumentPage() {
                   )}
                 </div>
 
-                {/* PIED DE PAGE : CONDITIONS ET SIGNATURE GARANTI DANS LE CADRE */}
+                {/* PIED DE PAGE : CONDITIONS ET SIGNATURE */}
                 {isLastPage && (
-                  <div className="pt-3 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
-                    <div className="mb-3">
+                  <div className="pt-2 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
+                    <div className="mb-2">
                       <span className="font-bold uppercase tracking-wider" style={{ color: '#1e3a8a' }}>{t.conditions} :</span>{' '}
                       {conditions}
                     </div>
 
-                    <div className="pt-2 flex justify-around text-center">
-                      <div className="w-40 border-t border-gray-400 pt-1.5">
+                    <div className="pt-1.5 flex justify-around text-center">
+                      <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900 uppercase text-[9px]">{t.goodForAgreement}</p>
-                        <p className="text-[9px] text-gray-400 mt-6">{t.signatureClient}</p>
+                        <p className="text-[9px] text-gray-400 mt-4">{t.signatureClient}</p>
                       </div>
-                      <div className="w-40 border-t border-gray-400 pt-1.5">
+                      <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900 uppercase text-[9px]">Date</p>
-                        <p className="text-[9px] text-gray-400 mt-6">{t.dateAcceptance}</p>
+                        <p className="text-[9px] text-gray-400 mt-4">{t.dateAcceptance}</p>
                       </div>
                     </div>
                   </div>
