@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload, Printer } from 'lucide-react'
+import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload, Printer, FileCheck } from 'lucide-react'
 import Link from 'next/link'
 
 interface Item {
@@ -169,6 +169,13 @@ export default function NewDocumentPage() {
     setActiveItemIndexForProduct(null)
   }
 
+  // Action : Facturer le devis (Transformation légale d'un devis accepté en facture)
+  const handleConvertToInvoice = () => {
+    setType('invoice')
+    setStatus('draft')
+    setSuccessMessage('Devis converti en Facture ! Vous pouvez vérifier les informations et l\'enregistrer.')
+  }
+
   // Impression
   const handlePrint = () => {
     window.print()
@@ -251,28 +258,47 @@ export default function NewDocumentPage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
       
-      {/* Styles globaux pour l'impression (Imprime uniquement le document A4 à droite) */}
+      {/* CSS strict d'impression A4 avec conservation forcée des couleurs et fonds */}
       <style jsx global>{`
         @media print {
-          body * {
-            visibility: hidden;
+          @page {
+            size: A4 portrait;
+            margin: 0;
           }
-          #printable-area, #printable-area * {
-            visibility: visible;
-          }
-          #printable-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+          body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           .no-print {
             display: none !important;
           }
+          #printable-area {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+          .a4-page {
+            page-break-after: always;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 15mm !important;
+            width: 210mm !important;
+            height: 297mm !important;
+          }
         }
       `}</style>
 
-      {/* Barre supérieure FIXE (Sticky Header) */}
+      {/* Barre supérieure FIXE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           
@@ -287,6 +313,18 @@ export default function NewDocumentPage() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Bouton Légale : Facturer le devis (uniquement sur devis accepté) */}
+            {type === 'quote' && status === 'accepted' && (
+              <button
+                onClick={handleConvertToInvoice}
+                type="button"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold text-sm flex items-center space-x-2 shadow transition"
+              >
+                <FileCheck className="w-4 h-4" />
+                <span>Facturer le devis</span>
+              </button>
+            )}
+
             <button
               onClick={handlePrint}
               type="button"
@@ -319,7 +357,7 @@ export default function NewDocumentPage() {
       {/* Grille principale 2 Colonnes */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLONNE GAUCHE : Formulaire de Saisie (Déroulant) */}
+        {/* COLONNE GAUCHE : Formulaire de Saisie */}
         <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200 no-print">
           
           {/* Logo Artisan & Infos */}
@@ -494,12 +532,12 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-7 flex gap-1">
-                      <textarea
-                        rows={2}
+                      <input
+                        type="text"
                         placeholder="Désignation de la prestation"
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500 resize-y"
+                        className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
                       />
                       <button
                         type="button"
@@ -508,7 +546,7 @@ export default function NewDocumentPage() {
                           setShowProductModal(true)
                         }}
                         title="Créer nouveau produit"
-                        className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300 h-8"
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 bg-white rounded border border-blue-300"
                       >
                         <PackagePlus className="w-4 h-4" />
                       </button>
@@ -615,7 +653,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE : APERÇU A4 FIXE AU SCROLL (Sticky on Desktop) */}
+        {/* COLONNE DROITE : APERÇU A4 (Cible d'impression unique) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -624,11 +662,11 @@ export default function NewDocumentPage() {
             return (
               <div
                 key={pageIndex}
-                className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
+                className="a4-page bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
                 
                 <div>
-                  {/* En-tête Répété sur chaque Page */}
+                  {/* En-tête Répété */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       {companyLogo ? (
@@ -659,14 +697,13 @@ export default function NewDocumentPage() {
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
                       {type === 'quote' ? 'DEVIS' : 'FACTURE'}
                     </h1>
-                    {/* Badge du statut actuel */}
                     <div>{getStatusBadge(status)}</div>
                   </div>
 
                   {/* Infos Client / Méta */}
                   <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 border-blue-800 pb-2.5">
                     <div className="space-y-0.5">
-                      <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #DEV-2026-1234</p>
+                      <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
                       <p><span className="font-bold text-gray-900">Date:</span> {currentDate}</p>
                       <p><span className="font-bold text-gray-900">Validité jusqu'au:</span> {validUntilDate}</p>
                     </div>
@@ -686,7 +723,7 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* Tableau des Articles A4 avec retour à la ligne sans décalage */}
+                  {/* Tableau des Articles A4 */}
                   <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
                     <table className="w-full text-left text-xs table-fixed border-collapse">
                       <thead className="bg-blue-800 text-white font-bold">
