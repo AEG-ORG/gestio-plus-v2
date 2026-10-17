@@ -348,67 +348,70 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-      <style jsx global>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
+	 <style jsx global>{`
+	  @media print {
+		@page {
+		  size: A4 portrait;
+		  margin: 0;
+		}
 
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
+		html, body {
+		  width: 210mm !important;
+		  height: 297mm !important;
+		  margin: 0 !important;
+		  padding: 0 !important;
+		  overflow: hidden !important;
+		  background: white !important;
+		  -webkit-print-color-adjust: exact !important;
+		  print-color-adjust: exact !important;
+		}
 
-          .no-print {
-            display: none !important;
-          }
+		.no-print {
+		  display: none !important;
+		}
 
-          #printable-area {
-            display: flex !important;
-            flex-direction: column !important;
-            position: static !important;
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: hidden !important;
-          }
+		#printable-area {
+		  display: flex !important;
+		  flex-direction: column !important;
+		  position: static !important;
+		  width: 100% !important;
+		  height: 100% !important;
+		  margin: 0 !important;
+		  padding: 0 !important;
+		  box-shadow: none !important;
+		  border: none !important;
+		  overflow: hidden !important;
+		  background: white !important;
+		}
 
-          .a4-page {
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            box-sizing: border-box !important;
-            padding: 10mm 15mm !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            page-break-after: always;
-            page-break-inside: avoid;
-            background-color: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            overflow: hidden !important;
-          }
+		.a4-page {
+		  width: 210mm !important;
+		  height: 297mm !important;
+		  max-height: 297mm !important;
+		  box-sizing: border-box !important;
+		  padding: 10mm 15mm !important;
+		  margin: 0 !important;
+		  /* Suppression absolue du contour gris et des ombres à l'impression */
+		  box-shadow: none !important;
+		  border: none !important;
+		  border-radius: 0 !important;
+		  outline: none !important;
+		  page-break-after: always;
+		  page-break-inside: avoid;
+		  background-color: white !important;
+		  -webkit-print-color-adjust: exact !important;
+		  print-color-adjust: exact !important;
+		  display: flex !important;
+		  flex-direction: column !important;
+		  justify-content: space-between !important;
+		  overflow: hidden !important;
+		}
 
-          ::-webkit-scrollbar {
-            display: none !important;
-          }
-        }
-      `}</style>
+		::-webkit-scrollbar {
+		  display: none !important;
+		}
+	  }
+	`}</style>	
 
       {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
