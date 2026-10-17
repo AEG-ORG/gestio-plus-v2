@@ -48,17 +48,19 @@ export default function DocumentTemplate({
 }: DocumentTemplateProps) {
   return (
     <div
-      className={`a4-page bg-white p-6 rounded-xl shadow-lg border text-gray-800 w-full flex flex-col justify-between relative ${
+      className={`a4-page bg-white p-6 rounded-xl shadow-lg border text-gray-800 w-full min-h-[297mm] flex flex-col justify-between relative ${
         template === 'corporate'
           ? 'border-blue-800 border-2'
           : template === 'minimalist'
           ? 'border-slate-300'
           : 'border-gray-200'
       }`}
-      style={{ minHeight: '297mm', boxSizing: 'border-box' }}
+      style={{ boxSizing: 'border-box' }}
     >
-      {/* 1. EN-TÊTE FIXE */}
-      <div className="space-y-4">
+      {/* ========================================== */}
+      {/* 1. EN-TÊTE FIXE ET STRUCTURÉ (NON MODIFIABLE) */}
+      {/* ========================================== */}
+      <div className="space-y-4 flex-1 flex flex-col">
         {template === 'classic' && (
           <div>
             <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b-2 border-blue-900">
@@ -164,26 +166,26 @@ export default function DocumentTemplate({
           </div>
         )}
 
-        {/* --- NOVEAU 4ème MODÈLE : MINIMALISTE --- */}
+        {/* --- MODÈLE MINIMALISTE : EN-TÊTE FIXE --- */}
         {template === 'minimalist' && (
-          <div className="border-b border-gray-300 pb-4 mb-2">
+          <div className="border-b border-slate-200 pb-3 mb-2">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-light tracking-wide text-slate-800 uppercase">
+                <h1 className="text-2xl font-light tracking-wide text-slate-900 uppercase">
                   {type === 'quote' ? t.quote : t.invoice}
                 </h1>
                 <p className="text-xs text-slate-500 font-mono mt-0.5">{documentNumber}</p>
               </div>
               <div className="text-right">
                 <span className="font-bold text-sm text-slate-900 block">{companyName}</span>
-                <p className="text-[10px] text-slate-500">{companyAddress}</p>
-                <p className="text-[10px] text-slate-500">{companyPhone}</p>
+                {companyAddress && <p className="text-[10px] text-slate-500 whitespace-pre-line">{companyAddress}</p>}
+                {companyPhone && <p className="text-[10px] text-slate-500">{companyPhone}</p>}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs mt-4 pt-3 border-t border-slate-100">
+            <div className="grid grid-cols-2 gap-4 text-xs mt-3 pt-2.5 border-t border-slate-100">
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Destinataire</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Destinataire</p>
                 <p className="font-semibold text-slate-800">{clientName} ({clientCompany})</p>
                 <p className="text-slate-600 text-[10px] whitespace-pre-line">{clientAddress}</p>
               </div>
@@ -203,16 +205,20 @@ export default function DocumentTemplate({
           </div>
         )}
 
-        {/* 2. ZONE CENTRALE LIBRE ET DYNAMIQUE */}
-        <div className="space-y-4">
+        {/* ========================================== */}
+        {/* 2. ZONE MILIEU DYNAMIQUE (TABLEAU & TOTAUX) */}
+        {/* ========================================== */}
+        <div className="space-y-4 my-auto">
           {children}
         </div>
       </div>
 
-      {/* 3. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES */}
+      {/* ========================================== */}
+      {/* 3. PIED DE PAGE FIXE : BON POUR ACCORD      */}
+      {/* ========================================== */}
       <div
-        className="pt-3 mt-6 text-[10px] text-gray-700"
-        style={{ borderTop: template === 'minimalist' ? '1px solid #94a3b8' : '2px solid #1e3a8a' }}
+        className="pt-3 mt-auto text-[10px] text-gray-700 shrink-0"
+        style={{ borderTop: template === 'minimalist' ? '1px solid #cbd5e1' : '2px solid #1e3a8a' }}
       >
         <div className="mb-2">
           <span className="font-bold uppercase tracking-wider text-slate-800">{t.conditions} :</span>{' '}
