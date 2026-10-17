@@ -348,75 +348,70 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-      <style jsx global>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0 !important;
-          }
+<style jsx global>{`
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0 !important;
+    }
 
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            overflow: hidden !important;
-          }
+    html, body {
+      width: 210mm !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 
-          .no-print {
-            display: none !important;
-          }
+    .no-print {
+      display: none !important;
+    }
 
-          #printable-area {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            border: none !important;
-            box-shadow: none !important;
-          }
+    #printable-area {
+      display: block !important;
+      position: relative !important;
+      width: 210mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
 
-          .a4-page {
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            box-sizing: border-box !important;
-            padding: 12mm 15mm 12mm 15mm !important;
-            margin: 0 !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            outline: none !important;
-            background: #ffffff !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            overflow: hidden !important;
-            page-break-after: always;
-            page-break-inside: avoid;
-          }
+    .a4-page {
+      width: 210mm !important;
+      min-height: 297mm !important;
+      height: auto !important;
+      box-sizing: border-box !important;
+      padding: 12mm 15mm 12mm 15mm !important;
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      background: #ffffff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      gap: 16px !important;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
 
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 
-          ::-webkit-scrollbar {
-            display: none !important;
-          }
-        }
-      `}</style>
-
+    ::-webkit-scrollbar {
+      display: none !important;
+    }
+  }
+`}</style>
       {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
