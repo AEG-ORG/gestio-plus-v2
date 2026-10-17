@@ -1,8 +1,66 @@
 export type Language = 'fr' | 'es' | 'en'
 
-export const translations = {
+export interface TranslationDictionary {
+  backToDocuments: string
+  createQuote: string
+  createInvoice: string
+  save: string
+  saving: string
+  print: string
+  invoiceQuote: string
+  artisanIdentity: string
+  documentType: string
+  status: string
+  languageLabel: string
+  vatManagement: string
+  globalVat: string
+  perProductVat: string
+  globalVatRate: string
+  clientInfo: string
+  newClient: string
+  clientNamePlaceholder: string
+  clientCompanyPlaceholder: string
+  clientAddressPlaceholder: string
+  shortDescription: string
+  lineItems: string
+  catalogPlaceholder: string
+  designationPlaceholder: string
+  qty: string
+  unit: string
+  unitPriceHt: string
+  addArticle: string
+  termsAndConditions: string
+  quote: string
+  invoice: string
+  quoteNumber: string
+  invoiceNumber: string
+  date: string
+  validUntil: string
+  description: string
+  descriptionHeader: string
+  quantity: string
+  unitPrice: string
+  vat: string
+  totalHt: string
+  totalTtc: string
+  conditions: string
+  goodForAgreement: string
+  signatureClient: string
+  dateAcceptance: string
+  page: string
+  draft: string
+  sent: string
+  accepted: string
+  rejected: string
+  expired: string
+  paid: string
+  partiallyPaid: string
+  overdue: string
+  cancelled: string
+}
+
+export const translations: Record<Language, TranslationDictionary> = {
   fr: {
-    // Navigation & Interface
     backToDocuments: 'Documents',
     createQuote: 'Création de Devis',
     createInvoice: 'Création de Facture',
@@ -32,14 +90,13 @@ export const translations = {
     unitPriceHt: 'Prix U. HT (€)',
     addArticle: 'Ajouter une ligne',
     termsAndConditions: 'Conditions Générales de Règlement',
-    
-    // Document A4
     quote: 'DEVIS',
     invoice: 'FACTURE',
     quoteNumber: 'Devis No:',
     invoiceNumber: 'Facture No:',
     date: 'Date:',
     validUntil: 'Validité jusqu\'au:',
+    description: 'DESCRIPTION:',
     descriptionHeader: 'Description',
     quantity: 'Qté',
     unitPrice: 'Prix U.',
@@ -51,8 +108,6 @@ export const translations = {
     signatureClient: 'Signature client',
     dateAcceptance: 'Date d\'acceptation',
     page: 'Page',
-
-    // Statuts
     draft: 'Brouillon',
     sent: 'Envoyé',
     accepted: 'Accepté / Signé',
@@ -64,7 +119,6 @@ export const translations = {
     cancelled: 'Annulée'
   },
   es: {
-    // Navigation & Interface
     backToDocuments: 'Documentos',
     createQuote: 'Creación de Presupuesto',
     createInvoice: 'Creación de Factura',
@@ -94,14 +148,13 @@ export const translations = {
     unitPriceHt: 'Precio U. sin IVA (€)',
     addArticle: 'Añadir línea',
     termsAndConditions: 'Términos y condiciones',
-
-    // Document A4
     quote: 'PRESUPUESTO',
     invoice: 'FACTURA',
     quoteNumber: 'Presupuesto N°:',
     invoiceNumber: 'Factura N°:',
     date: 'Fecha:',
     validUntil: 'Válido hasta:',
+    description: 'DESCRIPCIÓN:',
     descriptionHeader: 'Descripción',
     quantity: 'Cant.',
     unitPrice: 'Precio U.',
@@ -113,8 +166,6 @@ export const translations = {
     signatureClient: 'Firma cliente',
     dateAcceptance: 'Fecha de aceptación',
     page: 'Página',
-
-    // Statuts
     draft: 'Borrador',
     sent: 'Enviado',
     accepted: 'Aceptado / Firmado',
@@ -126,7 +177,6 @@ export const translations = {
     cancelled: 'Cancelada'
   },
   en: {
-    // Navigation & Interface
     backToDocuments: 'Documents',
     createQuote: 'Create Quote',
     createInvoice: 'Create Invoice',
@@ -156,14 +206,13 @@ export const translations = {
     unitPriceHt: 'Unit Price Excl. VAT (€)',
     addArticle: 'Add line item',
     termsAndConditions: 'Terms & Conditions',
-
-    // Document A4
     quote: 'QUOTE',
     invoice: 'INVOICE',
     quoteNumber: 'Quote No:',
     invoiceNumber: 'Invoice No:',
     date: 'Date:',
     validUntil: 'Valid until:',
+    description: 'DESCRIPTION:',
     descriptionHeader: 'Description',
     quantity: 'Qty',
     unitPrice: 'Unit Price',
@@ -175,8 +224,6 @@ export const translations = {
     signatureClient: 'Client signature',
     dateAcceptance: 'Acceptance date',
     page: 'Page',
-
-    // Statuts
     draft: 'Draft',
     sent: 'Sent',
     accepted: 'Accepted / Signed',
