@@ -1,212 +1,167 @@
 'use client'
 
-
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react'
+import { Plus, Search, FileText, ArrowLeft, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 
-interface Item {
-  description: string
-  quantity: number
-  unit_price: number
-  vat_rate: number
+interface Document {
+  id: string
+  type: 'quote' | 'invoice' | 'credit_note'
+  number: string
+  client_name: string
+  status: 'draft' | 'sent' | 'paid' | 'cancelled'
+  total_ht: number
+  total_ttc: number
+  created_at: string
 }
 
-export default function NewDocumentPage() {
-  const [type, setType] = useState<'quote' | 'invoice'>('quote')
-  const [clientName, setClientName] = useState('')
-  const [clientEmail, setClientEmail] = useState('')
-  const [items, setItems] = useState<Item[]>([{ description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])
-  const [loading, setLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
+export default function DocumentsListPage() {
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string>('all')
 
-  const addItem = () => {
-    setItems([...items, { description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])
-  }
-
-  const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index))
-  }
-
-  const updateItem = (index: number, field: keyof Item, value: any) => {
-    const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setItems(newItems)
-  }
-
-  // Calculs automatiques
-  const subtotal = items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0)
-  const totalVat = items.reduce((acc, item) => acc + (item.quantity * item.unit_price * (item.vat_rate / 100)), 0)
-  const totalTtc = subtotal + totalVat
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const fetchDocuments = async () => {
     setLoading(true)
-    setSuccessMessage('')
-
     try {
-      const year = new Date().getFullYear()
-      const randomNum = Math.floor(1000 + Math.random() * 9000)
-      const prefix = type === 'invoice' ? 'FAC' : 'DEV'
-      const documentNumber = `${prefix}-${year}-${randomNum}`
-
-      const { error } = await supabase.from('documents').insert([
-        {
-          type,
-          number: documentNumber,
-          client_name: clientName,
-          client_email: clientEmail,
-          items,
-          total_ht: subtotal,
-          total_ttc: totalTtc,
-          status: 'draft',
-          created_at: new Date().toISOString()
-        }
-      ])
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .order('created_at', { ascending: false })
 
       if (error) throw error
-
-      setSuccessMessage(`Document ${documentNumber} enregistré avec succès !`)
-      setClientName('')
-      setClientEmail('')
-      setItems([{ description: '', quantity: 1, unit_price: 0, vat_rate: 20 }])
+      setDocuments(data || [])
     } catch (err: any) {
-      alert("Erreur lors de l'enregistrement : " + err.message)
+      console.error('Erreur chargement documents:', err.message)
     } finally {
       setLoading(false)
     }
   }
 
+  useEffect(() => {
+    fetchDocuments()
+  }, [])
+
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesSearch =
+      doc.client_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.number?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesType = filterType === 'all' || doc.type === filterType
+    return matchesSearch && matchesType
+  })
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">Payé</span>
+      case 'sent':
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">Envoyé</span>
+      case 'cancelled':
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">Annulé</span>
+      default:
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full">Brouillon</span>
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 sm:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
         
         {/* En-tête */}
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 text-sm font-medium">
-            <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
+              <ArrowLeft className="w-4 h-4 mr-1" /> Retour à l'accueil
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900">Vos Documents</h1>
+            <p className="text-sm text-gray-500">Gérez l'ensemble de vos devis, factures et avoirs.</p>
+          </div>
+          <Link
+            href="/documents/new"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium shadow hover:bg-blue-700 transition"
+          >
+            <Plus className="w-5 h-5 mr-1" /> Nouveau Document
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Créer un Devis / Facture</h1>
         </div>
 
-        {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            {successMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {/* Type et Client */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type de document</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as 'quote' | 'invoice')}
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option value="quote">Devis</option>
-                <option value="invoice">Facture</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nom du client</label>
-              <input
-                type="text"
-                required
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Ex: Entreprise Dupont"
-                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email du client</label>
+        {/* Barre de recherche et filtres */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between gap-4">
+          <div className="relative flex-1">
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
             <input
-              type="email"
-              value={clientEmail}
-              onChange={(e) => setClientEmail(e.target.value)}
-              placeholder="client@exemple.com"
-              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
+              type="text"
+              placeholder="Rechercher par client ou numéro..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
-
-          {/* Articles */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Lignes de la prestation</h2>
-            <div className="space-y-3">
-              {items.map((item, index) => (
-                <div key={index} className="flex flex-col sm:flex-row gap-2 items-center bg-gray-50 p-3 rounded-lg border">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Description de l'article"
-                    value={item.description}
-                    onChange={(e) => updateItem(index, 'description', e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-md p-2 text-sm outline-none w-full"
-                  />
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    placeholder="Qté"
-                    value={item.quantity}
-                    onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
-                    className="w-20 border border-gray-300 rounded-md p-2 text-sm outline-none"
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    placeholder="Prix U. HT"
-                    value={item.unit_price}
-                    onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                    className="w-28 border border-gray-300 rounded-md p-2 text-sm outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeItem(index)}
-                    disabled={items.length === 1}
-                    className="text-red-500 hover:text-red-700 p-2 disabled:opacity-30"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={addItem}
-              className="mt-3 flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+          <div className="flex gap-2">
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <Plus className="w-4 h-4 mr-1" /> Ajouter une ligne
+              <option value="all">Tous les types</option>
+              <option value="quote">Devis</option>
+              <option value="invoice">Factures</option>
+            </select>
+            <button
+              onClick={fetchDocuments}
+              className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100"
+              title="Rafraîchir"
+            >
+              <RefreshCw className="w-5 h-5" />
             </button>
           </div>
+        </div>
 
-          {/* Totaux */}
-          <div className="bg-gray-50 p-4 rounded-lg flex flex-col items-end space-y-1 text-right">
-            <p className="text-sm text-gray-600">Total HT : <span className="font-semibold text-gray-900">{subtotal.toFixed(2)} €</span></p>
-            <p className="text-sm text-gray-600">Total TVA : <span className="font-semibold text-gray-900">{totalVat.toFixed(2)} €</span></p>
-            <p className="text-lg font-bold text-gray-900">Total TTC : {totalTtc.toFixed(2)} €</p>
-          </div>
+        {/* Tableau des documents */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">Chargement des documents...</div>
+          ) : filteredDocuments.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 space-y-2">
+              <FileText className="w-12 h-12 mx-auto text-gray-300" />
+              <p>Aucun document trouvé.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-gray-600">
+                <thead className="bg-gray-50 text-gray-700 font-semibold border-b border-gray-200">
+                  <tr>
+                    <th className="py-3 px-4">Type</th>
+                    <th className="py-3 px-4">Numéro</th>
+                    <th className="py-3 px-4">Client</th>
+                    <th className="py-3 px-4">Statut</th>
+                    <th className="py-3 px-4 text-right">Total HT</th>
+                    <th className="py-3 px-4 text-right">Total TTC</th>
+                    <th className="py-3 px-4 text-right">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredDocuments.map((doc) => (
+                    <tr key={doc.id} className="hover:bg-gray-50 transition">
+                      <td className="py-3 px-4 font-medium capitalize">
+                        {doc.type === 'quote' ? 'Devis' : doc.type === 'invoice' ? 'Facture' : 'Avoir'}
+                      </td>
+                      <td className="py-3 px-4 font-mono font-medium text-blue-600">{doc.number}</td>
+                      <td className="py-3 px-4 text-gray-900 font-medium">{doc.client_name}</td>
+                      <td className="py-3 px-4">{getStatusBadge(doc.status)}</td>
+                      <td className="py-3 px-4 text-right font-medium">{Number(doc.total_ht).toFixed(2)} €</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900">{Number(doc.total_ttc).toFixed(2)} €</td>
+                      <td className="py-3 px-4 text-right text-gray-400">
+                        {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-          {/* Bouton de soumission */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow transition flex items-center justify-center space-x-2 disabled:opacity-50"
-          >
-            <Save className="w-5 h-5" />
-            <span>{loading ? 'Enregistrement...' : 'Enregistrer le document'}</span>
-          </button>
-
-        </form>
       </div>
     </div>
   )
