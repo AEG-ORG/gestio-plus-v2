@@ -421,8 +421,7 @@ export default function NewDocumentPage() {
             print-color-adjust: exact !important;
             display: flex !important;
             flex-direction: column !important;
-            justify-content: flex-start !important;
-            gap: 16px !important;
+            justify-content: space-between !important;
             overflow: hidden !important;
             page-break-after: always;
             page-break-inside: avoid;
@@ -1057,10 +1056,10 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* TOTAUX AVEC REMISE (Parenthèses uniquement si pourcentage) */}
+                  {/* TOTAUX SANS CADRE GRIS (Remise avec ou sans parenthèses) */}
                   {isLastPage && (
                     <div className="flex justify-end text-xs">
-                      <div className="w-52 space-y-0.5 bg-gray-50/80 p-2 rounded-lg border border-gray-200">
+                      <div className="w-52 space-y-0.5 p-1">
                         <div className="flex justify-between text-gray-700">
                           <span>Sous-total HT</span>
                           <span className="font-semibold text-gray-900">{rawSubtotalHt.toFixed(2)}{currency}</span>
@@ -1069,7 +1068,7 @@ export default function NewDocumentPage() {
                         {discountValue > 0 && (
                           <div className="flex justify-between text-emerald-700 font-medium">
                             <span>
-                              Remise {discountType === 'percent' ? `(${discountValue}%)` : `${discountValue}${currency}`}
+                              {discountType === 'percent' ? `Remise (${discountValue}%)` : 'Remise'}
                             </span>
                             <span>-{calculatedDiscountAmount.toFixed(2)}{currency}</span>
                           </div>
@@ -1087,7 +1086,7 @@ export default function NewDocumentPage() {
                           <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}{currency}</span>
                         </div>
 
-                        <div className="flex justify-between p-1.5 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <div className="flex justify-between p-1.5 rounded font-bold text-sm shadow-sm mt-1" style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           <span>{t.totalTtc}</span>
                           <span>{totalTtc.toFixed(2)}{currency}</span>
                         </div>
@@ -1097,15 +1096,15 @@ export default function NewDocumentPage() {
 
                 </div>
 
-                {/* BLOC INFÉRIEUR : PIED DE PAGE & SIGNATURES */}
+                {/* BLOC INFÉRIEUR : PIED DE PAGE & SIGNATURES EN BAS DE PAGE */}
                 {isLastPage && (
-                  <div className="pt-2 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
+                  <div className="pt-2 text-[10px] text-gray-700 shrink-0 mt-auto" style={{ borderTop: '2px solid #1e3a8a' }}>
                     <div className="mb-1.5">
                       <span className="font-bold uppercase tracking-wider" style={{ color: '#1e3a8a' }}>{t.conditions} :</span>{' '}
                       {conditions}
                     </div>
 
-                    <div className="pt-1 flex justify-around text-center">
+                    <div className="pt-2 flex justify-around text-center">
                       <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900 uppercase text-[9px]">{t.goodForAgreement}</p>
                         <p className="text-[9px] text-gray-400 mt-3">{t.signatureClient}</p>
