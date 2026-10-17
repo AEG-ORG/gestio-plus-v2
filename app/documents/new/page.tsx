@@ -890,7 +890,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE (APERÇU A4 FLUIDE SANS ESPACE VIDE) */}
+        {/* COLONNE DROITE (APERÇU A4) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -904,10 +904,9 @@ export default function NewDocumentPage() {
                 }`}
               >
                 
-                {/* BLOC SUPÉRIEUR : EN-TÊTE + INFOS + DESCRIPTION + TABLEAU */}
+                {/* BLOC SUPÉRIEUR */}
                 <div className="space-y-4">
                   
-                  {/* 1. MODÈLE CLASSIQUE */}
                   {template === 'classic' && (
                     <div>
                       <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b-2 border-blue-900">
@@ -949,7 +948,6 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* 2. MODÈLE MODERNE */}
                   {template === 'modern' && (
                     <div>
                       <div className="flex justify-between items-start pb-3 mb-3 border-b border-gray-200">
@@ -981,7 +979,6 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* 3. MODÈLE CORPORATE */}
                   {template === 'corporate' && (
                     <div>
                       <div className="p-3 mb-2.5 bg-blue-900 text-white rounded-lg flex justify-between items-center" style={{ backgroundColor: '#1e3a8a', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -1015,7 +1012,6 @@ export default function NewDocumentPage() {
                     </div>
                   )}
 
-                  {/* DESCRIPTION COURTE */}
                   {pageIndex === 0 && documentDescription && (
                     <div className="text-xs bg-blue-50/30 py-1 px-2.5 rounded border border-blue-100">
                       <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description} :</span>
@@ -1061,7 +1057,7 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* TOTAUX AVEC REMISE */}
+                  {/* TOTAUX AVEC REMISE (Parenthèses uniquement si pourcentage) */}
                   {isLastPage && (
                     <div className="flex justify-end text-xs">
                       <div className="w-52 space-y-0.5 bg-gray-50/80 p-2 rounded-lg border border-gray-200">
@@ -1072,7 +1068,9 @@ export default function NewDocumentPage() {
 
                         {discountValue > 0 && (
                           <div className="flex justify-between text-emerald-700 font-medium">
-                            <span>Remise ({discountValue}{discountType === 'percent' ? '%' : currency})</span>
+                            <span>
+                              Remise {discountType === 'percent' ? `(${discountValue}%)` : `${discountValue}${currency}`}
+                            </span>
                             <span>-{calculatedDiscountAmount.toFixed(2)}{currency}</span>
                           </div>
                         )}
