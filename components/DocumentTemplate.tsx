@@ -48,11 +48,12 @@ export default function DocumentTemplate({
 }: DocumentTemplateProps) {
   return (
     <div
-      className={`a4-page bg-white p-6 rounded-xl shadow-lg border text-gray-800 w-full min-h-[297mm] flex flex-col justify-between relative overflow-hidden ${
+      className={`a4-page bg-white p-6 rounded-xl shadow-lg border text-gray-800 w-full flex flex-col justify-between relative ${
         template === 'corporate' ? 'border-blue-800 border-2' : 'border-gray-200'
       }`}
+      style={{ minHeight: '297mm', boxSizing: 'border-box' }}
     >
-      {/* 1. EN-TÊTE FIXE */}
+      {/* 1. EN-TÊTE ET ZONE CENTRALE */}
       <div className="space-y-4">
         {template === 'classic' && (
           <div>
@@ -166,15 +167,15 @@ export default function DocumentTemplate({
           </div>
         )}
 
-        {/* 2. ZONE CENTRALE MODIFIABLE (Articles, Tableaux, Totaux) */}
+        {/* ARTICLES ET TOTAUX */}
         <div className="space-y-4">
           {children}
         </div>
       </div>
 
-      {/* 3. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES */}
-      <div className="pt-2 text-[10px] text-gray-700 mt-auto" style={{ borderTop: '2px solid #1e3a8a' }}>
-        <div className="mb-1.5">
+      {/* 2. PIED DE PAGE FIXE : CONDITIONS ET SIGNATURES (CALÉ EN BAS) */}
+      <div className="pt-3 mt-6 text-[10px] text-gray-700" style={{ borderTop: '2px solid #1e3a8a' }}>
+        <div className="mb-2">
           <span className="font-bold uppercase tracking-wider text-blue-900">{t.conditions} :</span>{' '}
           {conditions}
         </div>
@@ -182,11 +183,11 @@ export default function DocumentTemplate({
         <div className="pt-2 flex justify-around text-center">
           <div className="w-36 border-t border-gray-400 pt-1">
             <p className="font-bold text-gray-900 uppercase text-[9px]">{t.goodForAgreement}</p>
-            <p className="text-[9px] text-gray-400 mt-3">{t.signatureClient}</p>
+            <p className="text-[9px] text-gray-400 mt-4">{t.signatureClient}</p>
           </div>
           <div className="w-36 border-t border-gray-400 pt-1">
             <p className="font-bold text-gray-900 uppercase text-[9px]">Date</p>
-            <p className="text-[9px] text-gray-400 mt-3">{t.dateAcceptance}</p>
+            <p className="text-[9px] text-gray-400 mt-4">{t.dateAcceptance}</p>
           </div>
         </div>
       </div>
