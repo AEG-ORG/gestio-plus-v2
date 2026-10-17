@@ -348,85 +348,76 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-<style jsx global>{`
-  @media print {
-    @page {
-      size: A4 portrait;
-      margin: 0 !important;
-    }
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
 
-    *, *::before, *::after {
-      background: transparent !important;
-      box-shadow: none !important;
-      text-shadow: none !important;
-    }
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            overflow: hidden !important;
+          }
 
-    html, body {
-      width: 210mm !important;
-      height: 297mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      overflow: hidden !important;
-    }
+          .no-print {
+            display: none !important;
+          }
 
-    .no-print {
-      display: none !important;
-    }
+          #printable-area {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
 
-    #printable-area {
-      display: block !important;
-      position: absolute !important;
-      left: 0 !important;
-      top: 0 !important;
-      width: 210mm !important;
-      height: 297mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
+          .a4-page {
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
+            padding: 10mm 15mm 10mm 15mm !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
 
-    .a4-page {
-      width: 210mm !important;
-      height: 297mm !important;
-      box-sizing: border-box !important;
-      padding: 12mm 15mm 12mm 15mm !important;
-      margin: 0 !important;
-      border: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      outline: none !important;
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: space-between !important;
-      overflow: hidden !important;
-      page-break-after: always;
-      page-break-inside: avoid;
-    }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
 
-    /* Conserver les couleurs d'arrière-plan spécifiques pour les blocs bleus */
-    .bg-blue-800, [class*="bg-blue-"] {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
+          ::-webkit-scrollbar {
+            display: none !important;
+          }
+        }
+      `}</style>
 
-    ::-webkit-scrollbar {
-      display: none !important;
-    }
-  }
-`}</style>
-
-      {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
+      {/* HEADER FIXE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           
@@ -471,7 +462,6 @@ export default function NewDocumentPage() {
               <span>{loading ? t.saving : t.save}</span>
             </button>
 
-            {/* SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
             <LanguageSelector
               currentLanguage={language}
               onLanguageChange={(lang) => setLanguage(lang)}
@@ -808,39 +798,39 @@ export default function NewDocumentPage() {
               >
                 
                 <div>
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center space-x-3">
                       {companyLogo ? (
                         <img src={companyLogo} alt="Logo" className="h-11 w-auto object-contain" />
                       ) : (
-                        <div className="w-9 h-9 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                        <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>
                           G+
                         </div>
                       )}
                       <div>
-                        <span className="font-extrabold text-blue-900 text-base tracking-wide block">{companyName}</span>
+                        <span className="font-extrabold text-base tracking-wide block" style={{ color: '#1e3a8a' }}>{companyName}</span>
                         {companyAddress && <p className="text-[10px] text-gray-500">{companyAddress}</p>}
                       </div>
                     </div>
 
-                    <div className="text-right text-[10px] text-blue-900 space-y-0.5 font-semibold">
-                      <p className="font-bold text-xs text-blue-800">{companyName}</p>
+                    <div className="text-right text-[10px] space-y-0.5 font-semibold" style={{ color: '#1e3a8a' }}>
+                      <p className="font-bold text-xs">{companyName}</p>
                       <p className="text-gray-500">{companyPhone}</p>
                       <p className="text-gray-500">{companyWeb}</p>
                       {totalPages > 1 && (
-                        <p className="text-blue-600 font-bold">{t.page} {pageIndex + 1} / {totalPages}</p>
+                        <p className="font-bold" style={{ color: '#2563eb' }}>{t.page} {pageIndex + 1} / {totalPages}</p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center my-3 border-b pb-2">
-                    <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
+                  <div className="flex justify-between items-center my-2 border-b pb-2" style={{ borderColor: '#1e3a8a' }}>
+                    <h1 className="text-2xl font-black tracking-widest uppercase" style={{ color: '#1e3a8a' }}>
                       {type === 'quote' ? t.quote : t.invoice}
                     </h1>
                     <div>{getStatusBadge(status)}</div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 border-blue-800 pb-2.5">
+                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-b-2 pb-2" style={{ borderColor: '#1e3a8a' }}>
                     <div className="space-y-0.5">
                       <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
                       <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
@@ -848,7 +838,7 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="space-y-0.5">
-                      <p className="font-bold text-blue-900 text-xs">{clientName || 'Nom Client'}</p>
+                      <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
                       <p className="font-semibold text-gray-700">{clientCompany}</p>
                       <p className="whitespace-pre-line text-gray-600 text-[11px]">{clientAddress || 'Adresse client'}</p>
                     </div>
@@ -856,20 +846,21 @@ export default function NewDocumentPage() {
 
                   {pageIndex === 0 && documentDescription && (
                     <div className="mb-3 text-xs">
-                      <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">{t.description}</span>
+                      <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description}</span>
                       <span className="text-gray-800">{documentDescription}</span>
                     </div>
                   )}
 
+                  {/* TABLEAU AVEC EN-TÊTE BLEU IMPRIMABLE */}
                   <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
                     <table className="w-full text-left text-xs table-fixed border-collapse">
-                      <thead className="bg-blue-800 text-white font-bold">
-                        <tr>
-                          <th className="py-2 px-3">{t.descriptionHeader}</th>
-                          <th className="py-2 px-2 text-center w-16">{t.quantity}</th>
-                          <th className="py-2 px-3 text-right w-20">{t.unitPrice}</th>
-                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14">{t.vat}</th>}
-                          <th className="py-2 px-3 text-right w-24">{t.totalHt}</th>
+                      <thead>
+                        <tr style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>
+                          <th className="py-2 px-3 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>{t.descriptionHeader}</th>
+                          <th className="py-2 px-2 text-center w-16 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>{t.quantity}</th>
+                          <th className="py-2 px-3 text-right w-20 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>{t.unitPrice}</th>
+                          {vatMode === 'per_product' && <th className="py-2 px-2 text-right w-14 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>{t.vat}</th>}
+                          <th className="py-2 px-3 text-right w-24 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>{t.totalHt}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-gray-50/50">
@@ -898,8 +889,9 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
+                  {/* PAVÉ DES TOTALS AVEC FOND BLEU IMPRIMABLE */}
                   {isLastPage && (
-                    <div className="flex justify-end text-xs mb-4">
+                    <div className="flex justify-end text-xs mb-2">
                       <div className="w-56 space-y-1">
                         <div className="flex justify-between text-gray-700">
                           <span>{t.totalHt}</span>
@@ -909,7 +901,7 @@ export default function NewDocumentPage() {
                           <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
                           <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}€</span>
                         </div>
-                        <div className="flex justify-between bg-blue-800 text-white p-2 rounded font-bold text-sm">
+                        <div className="flex justify-between p-2 rounded font-bold text-sm" style={{ backgroundColor: '#1e40af', color: '#ffffff' }}>
                           <span>{t.totalTtc}</span>
                           <span>{totalTtc.toFixed(2)}€</span>
                         </div>
@@ -919,26 +911,26 @@ export default function NewDocumentPage() {
 
                 </div>
 
-				{/* Bas de page Traduit */}
-				{isLastPage && (
-				  <div className="border-t-2 border-blue-800 pt-3 mt-4 space-y-2 text-[10px] text-gray-700 shrink-0">
-					<div>
-					  <span className="font-bold text-blue-900 uppercase">{t.conditions}</span>{' '}
-					  {conditions}
-					</div>
+                {/* BAS DE PAGE (SIGNATURE & CONDITIONS) DÉSORMAIS RENTRÉ DANS LA PAGE */}
+                {isLastPage && (
+                  <div className="pt-2 space-y-2 text-[10px] text-gray-700" style={{ borderTop: '2px solid #1e3a8a' }}>
+                    <div>
+                      <span className="font-bold uppercase" style={{ color: '#1e3a8a' }}>{t.conditions}</span>{' '}
+                      {conditions}
+                    </div>
 
-					<div className="pt-2 flex justify-around text-center">
-					  <div className="w-36 border-t border-gray-400 pt-1">
-						<p className="font-bold text-gray-900">{t.goodForAgreement}</p>
-						<p className="text-[9px] text-gray-500 mt-3">{t.signatureClient}</p>
-					  </div>
-					  <div className="w-36 border-t border-gray-400 pt-1">
-						<p className="font-bold text-gray-900">DATE</p>
-						<p className="text-[9px] text-gray-500 mt-3">{t.dateAcceptance}</p>
-					  </div>
-					</div>
-				  </div>
-				)}
+                    <div className="pt-1 flex justify-around text-center">
+                      <div className="w-36 border-t border-gray-400 pt-1">
+                        <p className="font-bold text-gray-900">{t.goodForAgreement}</p>
+                        <p className="text-[9px] text-gray-500 mt-2">{t.signatureClient}</p>
+                      </div>
+                      <div className="w-36 border-t border-gray-400 pt-1">
+                        <p className="font-bold text-gray-900">DATE</p>
+                        <p className="text-[9px] text-gray-500 mt-2">{t.dateAcceptance}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </div>
             )
