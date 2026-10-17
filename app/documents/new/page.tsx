@@ -135,7 +135,6 @@ export default function NewDocumentPage() {
   const [language, setLanguage] = useState<Language>('fr')
   const t = translations[language]
 
-  // Choix du modèle de devis/facture
   const [template, setTemplate] = useState<'classic' | 'modern' | 'corporate'>('classic')
 
   const [clientName, setClientName] = useState('Marie Philippe')
@@ -157,7 +156,6 @@ export default function NewDocumentPage() {
   const [globalVatRate, setGlobalVatRate] = useState<number>(20)
   const [currency, setCurrency] = useState<string>('€')
 
-  // Gestion de la remise
   const [discountValue, setDiscountValue] = useState<number>(0)
   const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent')
 
@@ -237,7 +235,6 @@ export default function NewDocumentPage() {
     setItems(newItems)
   }
 
-  // Calculs financiers
   const rawSubtotalHt = calculateSubtotalHt(items)
   
   let calculatedDiscountAmount = 0
@@ -413,7 +410,7 @@ export default function NewDocumentPage() {
             height: 297mm !important;
             max-height: 297mm !important;
             box-sizing: border-box !important;
-            padding: 8mm 15mm 8mm 15mm !important;
+            padding: 10mm 15mm 10mm 15mm !important;
             margin: 0 !important;
             border: none !important;
             border-radius: 0 !important;
@@ -424,7 +421,8 @@ export default function NewDocumentPage() {
             print-color-adjust: exact !important;
             display: flex !important;
             flex-direction: column !important;
-            justify-content: space-between !important;
+            justify-content: flex-start !important;
+            gap: 16px !important;
             overflow: hidden !important;
             page-break-after: always;
             page-break-inside: avoid;
@@ -892,7 +890,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE (APERÇU A4 DYNAMIQUE SELON LE MODÈLE CHOISI) */}
+        {/* COLONNE DROITE (APERÇU A4 FLUIDE SANS ESPACE VIDE) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -906,197 +904,202 @@ export default function NewDocumentPage() {
                 }`}
               >
                 
-                {/* 1. MODÈLE CLASSIQUE */}
-                {template === 'classic' && (
-                  <div>
-                    <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b-2 border-blue-900">
-                      <div className="flex items-center space-x-3">
-                        {companyLogo ? (
-                          <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain" />
-                        ) : (
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-base shadow-md" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            G+
+                {/* BLOC SUPÉRIEUR : EN-TÊTE + INFOS + DESCRIPTION + TABLEAU */}
+                <div className="space-y-4">
+                  
+                  {/* 1. MODÈLE CLASSIQUE */}
+                  {template === 'classic' && (
+                    <div>
+                      <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b-2 border-blue-900">
+                        <div className="flex items-center space-x-3">
+                          {companyLogo ? (
+                            <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-base shadow-md" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              G+
+                            </div>
+                          )}
+                          <div>
+                            <span className="font-black text-sm tracking-wide block uppercase" style={{ color: '#1e3a8a' }}>{companyName}</span>
+                            {companyAddress && <p className="text-[9px] text-gray-500 whitespace-pre-line">{companyAddress}</p>}
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <h1 className="text-xl font-black tracking-widest uppercase mb-0.5" style={{ color: '#1e3a8a' }}>
+                            {type === 'quote' ? t.quote : t.invoice}
+                          </h1>
+                          <div className="inline-block">{getStatusBadge(status)}</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs py-1.5 px-3 bg-gray-50/50 rounded-lg border border-gray-200">
+                        <div className="space-y-0.5">
+                          <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
+                          <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
+                          <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
+                        </div>
+
+                        <div className="space-y-0.5 border-l pl-3 border-gray-200">
+                          <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
+                          <p className="font-semibold text-gray-700">{clientCompany}</p>
+                          <p className="whitespace-pre-line text-gray-600 text-[10px] leading-tight">{clientAddress || 'Adresse client'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. MODÈLE MODERNE */}
+                  {template === 'modern' && (
+                    <div>
+                      <div className="flex justify-between items-start pb-3 mb-3 border-b border-gray-200">
+                        <div>
+                          <h1 className="text-3xl font-light tracking-tight text-gray-900 uppercase">
+                            {type === 'quote' ? t.quote : t.invoice}
+                          </h1>
+                          <p className="text-xs text-gray-500 font-medium mt-0.5">#{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
+                          <div className="mt-2">{getStatusBadge(status)}</div>
+                        </div>
+
+                        <div className="text-right flex items-center space-x-3">
+                          <div>
+                            <span className="font-bold text-sm text-gray-900 block">{companyName}</span>
+                            <p className="text-[9px] text-gray-500">{companyPhone} — {companyWeb}</p>
+                          </div>
+                          {companyLogo && <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain" />}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between text-xs text-gray-600 bg-gray-50/60 p-2.5 rounded-lg">
+                        <div>
+                          <span className="font-semibold text-gray-900">Client :</span> {clientName} ({clientCompany})
+                        </div>
+                        <div className="text-right">
+                          <span className="font-semibold text-gray-900">Date :</span> {currentDate}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. MODÈLE CORPORATE */}
+                  {template === 'corporate' && (
+                    <div>
+                      <div className="p-3 mb-2.5 bg-blue-900 text-white rounded-lg flex justify-between items-center" style={{ backgroundColor: '#1e3a8a', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <div className="flex items-center space-x-3">
+                          {companyLogo ? (
+                            <img src={companyLogo} alt="Logo" className="h-9 w-auto object-contain bg-white p-1 rounded" />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-white text-blue-900 flex items-center justify-center font-bold text-sm">G+</div>
+                          )}
+                          <div>
+                            <span className="font-black text-sm tracking-wider uppercase">{companyName}</span>
+                            <p className="text-[9px] text-blue-200">{companyAddress}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <h1 className="text-lg font-black tracking-widest uppercase">{type === 'quote' ? t.quote : t.invoice}</h1>
+                          <p className="text-[10px] text-blue-200">Réf: #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs border-b pb-2">
+                        <div>
+                          <p><span className="font-bold text-gray-900">Émis le :</span> {currentDate}</p>
+                          <p><span className="font-bold text-gray-900">Validité :</span> {validUntilDate}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-blue-900">{clientName} — {clientCompany}</p>
+                          <p className="text-[10px] text-gray-600 whitespace-pre-line">{clientAddress}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* DESCRIPTION COURTE */}
+                  {pageIndex === 0 && documentDescription && (
+                    <div className="text-xs bg-blue-50/30 py-1 px-2.5 rounded border border-blue-100">
+                      <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description} :</span>
+                      <span className="text-gray-800 font-medium">{documentDescription}</span>
+                    </div>
+                  )}
+
+                  {/* TABLEAU DES ARTICLES */}
+                  <div className="overflow-hidden rounded-md border border-gray-200 shadow-sm">
+                    <table className="w-full text-left text-xs table-fixed border-collapse">
+                      <thead>
+                        <tr style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="py-1.5 px-3 font-bold">{t.descriptionHeader}</th>
+                          <th className="py-1.5 px-2 text-center w-16 font-bold">{t.quantity}</th>
+                          <th className="py-1.5 px-3 text-right w-20 font-bold">{t.unitPrice}</th>
+                          {vatMode === 'per_product' && <th className="py-1.5 px-2 text-right w-14 font-bold">{t.vat}</th>}
+                          <th className="py-1.5 px-3 text-right w-24 font-bold">{t.totalHt}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {pageItems.map((item, idx) => (
+                          <tr key={idx} className="align-top">
+                            <td className="py-1.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
+                              {item.description || 'Ligne de prestation'}
+                            </td>
+                            <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
+                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+                            </td>
+                            <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
+                              {item.unit_price.toFixed(2)}{currency}
+                            </td>
+                            {vatMode === 'per_product' && (
+                              <td className="py-1.5 px-2 text-right text-gray-600 whitespace-nowrap">
+                                {item.vat_rate}%
+                              </td>
+                            )}
+                            <td className="py-1.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                              {calculateItemTotalHt(item).toFixed(2)}{currency}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* TOTAUX AVEC REMISE */}
+                  {isLastPage && (
+                    <div className="flex justify-end text-xs">
+                      <div className="w-52 space-y-0.5 bg-gray-50/80 p-2 rounded-lg border border-gray-200">
+                        <div className="flex justify-between text-gray-700">
+                          <span>Sous-total HT</span>
+                          <span className="font-semibold text-gray-900">{rawSubtotalHt.toFixed(2)}{currency}</span>
+                        </div>
+
+                        {discountValue > 0 && (
+                          <div className="flex justify-between text-emerald-700 font-medium">
+                            <span>Remise ({discountValue}{discountType === 'percent' ? '%' : currency})</span>
+                            <span>-{calculatedDiscountAmount.toFixed(2)}{currency}</span>
                           </div>
                         )}
-                        <div>
-                          <span className="font-black text-sm tracking-wide block uppercase" style={{ color: '#1e3a8a' }}>{companyName}</span>
-                          {companyAddress && <p className="text-[9px] text-gray-500 whitespace-pre-line">{companyAddress}</p>}
-                        </div>
-                      </div>
 
-                      <div className="text-right">
-                        <h1 className="text-xl font-black tracking-widest uppercase mb-0.5" style={{ color: '#1e3a8a' }}>
-                          {type === 'quote' ? t.quote : t.invoice}
-                        </h1>
-                        <div className="inline-block">{getStatusBadge(status)}</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-xs mb-2.5 py-1.5 px-3 bg-gray-50/50 rounded-lg border border-gray-200">
-                      <div className="space-y-0.5">
-                        <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
-                        <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
-                        <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
-                      </div>
-
-                      <div className="space-y-0.5 border-l pl-3 border-gray-200">
-                        <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
-                        <p className="font-semibold text-gray-700">{clientCompany}</p>
-                        <p className="whitespace-pre-line text-gray-600 text-[10px] leading-tight">{clientAddress || 'Adresse client'}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 2. MODÈLE MODERNE */}
-                {template === 'modern' && (
-                  <div>
-                    <div className="flex justify-between items-start pb-4 mb-4 border-b border-gray-200">
-                      <div>
-                        <h1 className="text-3xl font-light tracking-tight text-gray-900 uppercase">
-                          {type === 'quote' ? t.quote : t.invoice}
-                        </h1>
-                        <p className="text-xs text-gray-500 font-medium mt-0.5">#{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
-                        <div className="mt-2">{getStatusBadge(status)}</div>
-                      </div>
-
-                      <div className="text-right flex items-center space-x-3">
-                        <div>
-                          <span className="font-bold text-sm text-gray-900 block">{companyName}</span>
-                          <p className="text-[9px] text-gray-500">{companyPhone} — {companyWeb}</p>
-                        </div>
-                        {companyLogo && <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain" />}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between text-xs mb-4 text-gray-600 bg-gray-50/60 p-3 rounded-lg">
-                      <div>
-                        <span className="font-semibold text-gray-900">Client :</span> {clientName} ({clientCompany})
-                      </div>
-                      <div className="text-right">
-                        <span className="font-semibold text-gray-900">Date :</span> {currentDate}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. MODÈLE CORPORATE */}
-                {template === 'corporate' && (
-                  <div>
-                    <div className="p-3 mb-3 bg-blue-900 text-white rounded-lg flex justify-between items-center" style={{ backgroundColor: '#1e3a8a', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      <div className="flex items-center space-x-3">
-                        {companyLogo ? (
-                          <img src={companyLogo} alt="Logo" className="h-9 w-auto object-contain bg-white p-1 rounded" />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-white text-blue-900 flex items-center justify-center font-bold text-sm">G+</div>
+                        {discountValue > 0 && (
+                          <div className="flex justify-between text-gray-700 border-t pt-0.5 border-gray-200">
+                            <span>{t.totalHt} net</span>
+                            <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}{currency}</span>
+                          </div>
                         )}
-                        <div>
-                          <span className="font-black text-sm tracking-wider uppercase">{companyName}</span>
-                          <p className="text-[9px] text-blue-200">{companyAddress}</p>
+
+                        <div className="flex justify-between text-gray-700">
+                          <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
+                          <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}{currency}</span>
+                        </div>
+
+                        <div className="flex justify-between p-1.5 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <span>{t.totalTtc}</span>
+                          <span>{totalTtc.toFixed(2)}{currency}</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <h1 className="text-lg font-black tracking-widest uppercase">{type === 'quote' ? t.quote : t.invoice}</h1>
-                        <p className="text-[10px] text-blue-200">Réf: #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
-                      </div>
                     </div>
+                  )}
 
-                    <div className="grid grid-cols-2 gap-3 text-xs mb-3 border-b pb-2">
-                      <div>
-                        <p><span className="font-bold text-gray-900">Émis le :</span> {currentDate}</p>
-                        <p><span className="font-bold text-gray-900">Validité :</span> {validUntilDate}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-blue-900">{clientName} — {clientCompany}</p>
-                        <p className="text-[10px] text-gray-600 whitespace-pre-line">{clientAddress}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* DESCRIPTION COURTE */}
-                {pageIndex === 0 && documentDescription && (
-                  <div className="mb-2.5 text-xs bg-blue-50/30 py-1 px-2.5 rounded border border-blue-100">
-                    <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description} :</span>
-                    <span className="text-gray-800 font-medium">{documentDescription}</span>
-                  </div>
-                )}
-
-                {/* TABLEAU DES ARTICLES */}
-                <div className="overflow-hidden rounded-md mb-2.5 border border-gray-200 shadow-sm">
-                  <table className="w-full text-left text-xs table-fixed border-collapse">
-                    <thead>
-                      <tr style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                        <th className="py-1.5 px-3 font-bold">{t.descriptionHeader}</th>
-                        <th className="py-1.5 px-2 text-center w-16 font-bold">{t.quantity}</th>
-                        <th className="py-1.5 px-3 text-right w-20 font-bold">{t.unitPrice}</th>
-                        {vatMode === 'per_product' && <th className="py-1.5 px-2 text-right w-14 font-bold">{t.vat}</th>}
-                        <th className="py-1.5 px-3 text-right w-24 font-bold">{t.totalHt}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
-                      {pageItems.map((item, idx) => (
-                        <tr key={idx} className="align-top">
-                          <td className="py-1.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
-                            {item.description || 'Ligne de prestation'}
-                          </td>
-                          <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
-                            {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
-                          </td>
-                          <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
-                            {item.unit_price.toFixed(2)}{currency}
-                          </td>
-                          {vatMode === 'per_product' && (
-                            <td className="py-1.5 px-2 text-right text-gray-600 whitespace-nowrap">
-                              {item.vat_rate}%
-                            </td>
-                          )}
-                          <td className="py-1.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
-                            {calculateItemTotalHt(item).toFixed(2)}{currency}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
                 </div>
 
-                {/* TOTAUX AVEC REMISE */}
-                {isLastPage && (
-                  <div className="flex justify-end text-xs mb-2">
-                    <div className="w-52 space-y-0.5 bg-gray-50/80 p-2 rounded-lg border border-gray-200">
-                      <div className="flex justify-between text-gray-700">
-                        <span>Sous-total HT</span>
-                        <span className="font-semibold text-gray-900">{rawSubtotalHt.toFixed(2)}{currency}</span>
-                      </div>
-
-                      {discountValue > 0 && (
-                        <div className="flex justify-between text-emerald-700 font-medium">
-                          <span>Remise ({discountValue}{discountType === 'percent' ? '%' : currency})</span>
-                          <span>-{calculatedDiscountAmount.toFixed(2)}{currency}</span>
-                        </div>
-                      )}
-
-                      {discountValue > 0 && (
-                        <div className="flex justify-between text-gray-700 border-t pt-0.5 border-gray-200">
-                          <span>{t.totalHt} net</span>
-                          <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}{currency}</span>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between text-gray-700">
-                        <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
-                        <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}{currency}</span>
-                      </div>
-
-                      <div className="flex justify-between p-1.5 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: template === 'modern' ? '#374151' : '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                        <span>{t.totalTtc}</span>
-                        <span>{totalTtc.toFixed(2)}{currency}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* PIED DE PAGE : CONDITIONS ET SIGNATURE */}
+                {/* BLOC INFÉRIEUR : PIED DE PAGE & SIGNATURES */}
                 {isLastPage && (
                   <div className="pt-2 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
                     <div className="mb-1.5">
