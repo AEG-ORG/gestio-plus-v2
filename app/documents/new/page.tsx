@@ -348,74 +348,75 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-      <style jsx global>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
+	<style jsx global>{`
+	  @media print {
+		@page {
+		  size: A4 portrait;
+		  margin: 0;
+		}
 
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            overflow: hidden !important;
-          }
+		html, body {
+		  width: 210mm !important;
+		  height: 297mm !important;
+		  margin: 0 !important;
+		  padding: 0 !important;
+		  background: #ffffff !important;
+		  -webkit-print-color-adjust: exact !important;
+		  print-color-adjust: exact !important;
+		  overflow: hidden !important;
+		}
 
-          .no-print {
-            display: none !important;
-          }
+		.no-print {
+		  display: none !important;
+		}
 
-          #printable-area {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            border: none !important;
-            box-shadow: none !important;
-          }
+		#printable-area {
+		  display: block !important;
+		  position: absolute !important;
+		  left: 0 !important;
+		  top: 0 !important;
+		  width: 210mm !important;
+		  height: 297mm !important;
+		  margin: 0 !important;
+		  padding: 0 !important;
+		  background: #ffffff !important;
+		  border: none !important;
+		  box-shadow: none !important;
+		}
 
-          .a4-page {
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            box-sizing: border-box !important;
-            padding: 10mm 15mm 10mm 15mm !important;
-            margin: 0 !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            outline: none !important;
-            background: #ffffff !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            overflow: hidden !important;
-            page-break-after: always;
-            page-break-inside: avoid;
-          }
+		.a4-page {
+		  width: 210mm !important;
+		  height: 297mm !important;
+		  max-height: 297mm !important;
+		  box-sizing: border-box !important;
+		  /* On réduit légèrement les marges intérieures haut/bas à 8mm pour tout faire tenir confortablement */
+		  padding: 8mm 15mm 8mm 15mm !important;
+		  margin: 0 !important;
+		  border: none !important;
+		  border-radius: 0 !important;
+		  box-shadow: none !important;
+		  outline: none !important;
+		  background: #ffffff !important;
+		  -webkit-print-color-adjust: exact !important;
+		  print-color-adjust: exact !important;
+		  display: flex !important;
+		  flex-direction: column !important;
+		  justify-content: space-between !important;
+		  overflow: hidden !important;
+		  page-break-after: always;
+		  page-break-inside: avoid;
+		}
 
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
+		* {
+		  -webkit-print-color-adjust: exact !important;
+		  print-color-adjust: exact !important;
+		}
 
-          ::-webkit-scrollbar {
-            display: none !important;
-          }
-        }
-      `}</style>
+		::-webkit-scrollbar {
+		  display: none !important;
+		}
+	  }
+	`}</style>
 
       {/* HEADER FIXE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
