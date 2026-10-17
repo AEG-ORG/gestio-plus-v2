@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload, Image as ImageIcon } from 'lucide-react'
+import { Plus, Trash2, Save, ArrowLeft, UserPlus, PackagePlus, X, Upload } from 'lucide-react'
 import Link from 'next/link'
 
 interface Item {
@@ -79,14 +79,12 @@ export default function NewDocumentPage() {
     setValidUntilDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'))
   }, [])
 
-  // Gestion du Logo
+  // Logo Upload
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setCompanyLogo(reader.result as string)
-      }
+      reader.onloadend = () => setCompanyLogo(reader.result as string)
       reader.readAsDataURL(file)
     }
   }
@@ -135,7 +133,7 @@ export default function NewDocumentPage() {
   }, 0)
   const totalTtc = subtotalHt + totalVat
 
-  // Modal Handlers
+  // Save Handlers
   const handleSaveClient = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newClient.name) return
@@ -209,8 +207,8 @@ export default function NewDocumentPage() {
     }
   }
 
-  // Découpage automatique pour format A4 (6 articles par page)
-  const ITEMS_PER_PAGE = 6
+  // Découpage optimisé A4 : jusqu'à 12 articles par page pour éviter les sauts prématurés
+  const ITEMS_PER_PAGE = 12
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1
   const pages = Array.from({ length: totalPages }, (_, pageIndex) => {
     return items.slice(pageIndex * ITEMS_PER_PAGE, (pageIndex + 1) * ITEMS_PER_PAGE)
@@ -243,18 +241,18 @@ export default function NewDocumentPage() {
         </div>
       )}
 
-      {/* Grille principale 2 Colonnes */}
+      {/* Grille 2 Colonnes */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* COLONNE GAUCHE : Formulaire de Saisie */}
-        <div className="lg:col-span-6 space-y-6 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div className="lg:col-span-6 space-y-5 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           
           {/* Logo Artisan & Infos */}
-          <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-lg space-y-3">
+          <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
             <h2 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Identité / Logo Artisan</h2>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {companyLogo ? (
-                <div className="relative w-16 h-16 border rounded bg-white overflow-hidden flex items-center justify-center">
+                <div className="relative w-14 h-14 border rounded bg-white overflow-hidden flex items-center justify-center">
                   <img src={companyLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
                   <button
                     type="button"
@@ -265,8 +263,8 @@ export default function NewDocumentPage() {
                   </button>
                 </div>
               ) : (
-                <label className="w-16 h-16 border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100/50 text-blue-600">
-                  <Upload className="w-5 h-5 mb-1" />
+                <label className="w-14 h-14 border-2 border-dashed border-blue-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100/50 text-blue-600">
+                  <Upload className="w-4 h-4 mb-0.5" />
                   <span className="text-[9px] font-semibold">Logo</span>
                   <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                 </label>
@@ -292,7 +290,7 @@ export default function NewDocumentPage() {
           </div>
 
           {/* Paramètres principaux */}
-          <div className="grid grid-cols-2 gap-4 pb-2 border-b">
+          <div className="grid grid-cols-2 gap-3 pb-2 border-b">
             <div>
               <label className="block text-xs font-semibold text-gray-900 mb-1">Type de document</label>
               <select
@@ -335,7 +333,7 @@ export default function NewDocumentPage() {
           )}
 
           {/* Client */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2.5 pt-1">
             <div className="flex justify-between items-center">
               <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Information Client</h2>
               <button
@@ -385,14 +383,12 @@ export default function NewDocumentPage() {
           </div>
 
           {/* Section Lignes Articles */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3 pt-1">
             <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Lignes d'articles</h2>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {items.map((item, index) => (
-                <div key={index} className="p-3 bg-gray-50 border rounded-lg space-y-2">
-                  
-                  {/* Sélecteur Catalogue & Désignation */}
+                <div key={index} className="p-2.5 bg-gray-50 border rounded-lg space-y-2">
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-5">
                       <select
@@ -429,7 +425,6 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Quantité, Unité, Prix, Total */}
                   <div className="grid grid-cols-12 gap-2 items-center">
                     <div className="col-span-3">
                       <label className="block text-[10px] font-semibold text-gray-700">Qté</label>
@@ -514,13 +509,13 @@ export default function NewDocumentPage() {
             </button>
           </div>
 
-          {/* Conditions de vente personnalisables */}
-          <div className="pt-2">
+          {/* Conditions */}
+          <div className="pt-1">
             <label className="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-1">
               Conditions Générales de Règlement
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={conditions}
               onChange={(e) => setConditions(e.target.value)}
               className="w-full border border-gray-300 rounded-lg p-2 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
@@ -530,8 +525,8 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE : APERÇU A4 MULTI-PAGES EN TEMPS RÉEL */}
-        <div className="lg:col-span-6 space-y-8">
+        {/* COLONNE DROITE : APERÇU A4 COMPACT & DYNAMIQUE */}
+        <div className="lg:col-span-6 space-y-6">
           
           {pages.map((pageItems, pageIndex) => {
             const isLastPage = pageIndex === totalPages - 1
@@ -539,23 +534,22 @@ export default function NewDocumentPage() {
             return (
               <div
                 key={pageIndex}
-                className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
-                style={{ aspectRatio: '1 / 1.414' }} // Ratio A4
+                className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
                 
                 <div>
-                  {/* En-tête Répété sur chaque Page A4 */}
-                  <div className="flex justify-between items-start mb-6">
+                  {/* En-tête Répété */}
+                  <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       {companyLogo ? (
-                        <img src={companyLogo} alt="Logo" className="h-12 w-auto object-contain" />
+                        <img src={companyLogo} alt="Logo" className="h-11 w-auto object-contain" />
                       ) : (
-                        <div className="w-10 h-10 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        <div className="w-9 h-9 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                           G+
                         </div>
                       )}
                       <div>
-                        <span className="font-extrabold text-blue-900 text-lg tracking-wide block">{companyName}</span>
+                        <span className="font-extrabold text-blue-900 text-base tracking-wide block">{companyName}</span>
                         {companyAddress && <p className="text-[10px] text-gray-500">{companyAddress}</p>}
                       </div>
                     </div>
@@ -564,19 +558,21 @@ export default function NewDocumentPage() {
                       <p className="font-bold text-xs text-blue-800">{companyName}</p>
                       <p className="text-gray-500">{companyPhone}</p>
                       <p className="text-gray-500">{companyWeb}</p>
-                      <p className="text-blue-600 font-bold">Page {pageIndex + 1} / {totalPages}</p>
+                      {totalPages > 1 && (
+  <p className="text-blue-600 font-bold">Page {pageIndex + 1} / {totalPages}</p>
+)}
                     </div>
                   </div>
 
-                  {/* Titre Document */}
-                  <div className="text-center my-4">
+                  {/* Titre */}
+                  <div className="text-center my-3">
                     <h1 className="text-2xl font-black tracking-widest text-blue-800 uppercase">
                       {type === 'quote' ? 'DEVIS' : 'FACTURE'}
                     </h1>
                   </div>
 
-                  {/* Méta-informations & Client */}
-                  <div className="grid grid-cols-2 gap-4 text-xs mb-4 border-t-2 border-b-2 border-blue-800 py-3">
+                  {/* Infos Client / Méta */}
+                  <div className="grid grid-cols-2 gap-4 text-xs mb-3 border-t-2 border-b-2 border-blue-800 py-2.5">
                     <div className="space-y-0.5">
                       <p><span className="font-bold text-gray-900">{type === 'quote' ? 'Devis No:' : 'Facture No:'}</span> #DEV-2026-1234</p>
                       <p><span className="font-bold text-gray-900">Date:</span> {currentDate}</p>
@@ -590,16 +586,16 @@ export default function NewDocumentPage() {
                     </div>
                   </div>
 
-                  {/* Description courte (Page 1 uniquement) */}
+                  {/* Description courte (Page 1) */}
                   {pageIndex === 0 && documentDescription && (
-                    <div className="mb-4 text-xs">
+                    <div className="mb-3 text-xs">
                       <span className="font-bold text-blue-900 uppercase tracking-wider mr-2">DESCRIPTION:</span>
                       <span className="text-gray-800">{documentDescription}</span>
                     </div>
                   )}
 
-                  {/* Tableau des Articles pour cette Page */}
-                  <div className="overflow-hidden rounded-md mb-4 border border-gray-200">
+                  {/* Tableau des Articles */}
+                  <div className="overflow-hidden rounded-md mb-3 border border-gray-200">
                     <table className="w-full text-left text-xs">
                       <thead className="bg-blue-800 text-white font-bold">
                         <tr>
@@ -613,21 +609,21 @@ export default function NewDocumentPage() {
                       <tbody className="divide-y divide-gray-100 bg-gray-50/50">
                         {pageItems.map((item, idx) => (
                           <tr key={idx}>
-                            <td className="py-2 px-3 text-gray-900 font-medium">
+                            <td className="py-1.5 px-3 text-gray-900 font-medium">
                               {item.description || 'Ligne de prestation'}
                             </td>
-                            <td className="py-2 px-2 text-center text-gray-700">
+                            <td className="py-1.5 px-2 text-center text-gray-700">
                               {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
                             </td>
-                            <td className="py-2 px-3 text-right text-gray-700">
+                            <td className="py-1.5 px-3 text-right text-gray-700">
                               {item.unit_price.toFixed(2)}€
                             </td>
                             {vatMode === 'per_product' && (
-                              <td className="py-2 px-2 text-right text-gray-600">
+                              <td className="py-1.5 px-2 text-right text-gray-600">
                                 {item.vat_rate}%
                               </td>
                             )}
-                            <td className="py-2 px-3 text-right font-semibold text-gray-900">
+                            <td className="py-1.5 px-3 text-right font-semibold text-gray-900">
                               {getItemTotalHt(item).toFixed(2)}€
                             </td>
                           </tr>
@@ -636,10 +632,10 @@ export default function NewDocumentPage() {
                     </table>
                   </div>
 
-                  {/* Totaux (Dernière Page Uniquement) */}
+                  {/* Totaux (Dernière Page) */}
                   {isLastPage && (
-                    <div className="flex justify-end text-xs mb-6">
-                      <div className="w-56 space-y-1.5">
+                    <div className="flex justify-end text-xs mb-4">
+                      <div className="w-56 space-y-1">
                         <div className="flex justify-between text-gray-700">
                           <span>Total HT</span>
                           <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
@@ -658,9 +654,9 @@ export default function NewDocumentPage() {
 
                 </div>
 
-                {/* Bas de page & Conditions (Dernière Page Uniquement) */}
+                {/* Bas de page & Conditions (Dernière Page) */}
                 {isLastPage && (
-                  <div className="border-t-2 border-blue-800 pt-3 space-y-3 text-[10px] text-gray-700">
+                  <div className="border-t-2 border-blue-800 pt-2.5 space-y-2 text-[10px] text-gray-700 mt-auto">
                     <div>
                       <span className="font-bold text-blue-900 uppercase">CONDITIONS:</span>{' '}
                       {conditions}
@@ -669,11 +665,11 @@ export default function NewDocumentPage() {
                     <div className="pt-2 flex justify-around text-center">
                       <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900">BON POUR ACCORD</p>
-                        <p className="text-[9px] text-gray-500 mt-5">Signature client</p>
+                        <p className="text-[9px] text-gray-500 mt-4">Signature client</p>
                       </div>
                       <div className="w-36 border-t border-gray-400 pt-1">
                         <p className="font-bold text-gray-900">DATE</p>
-                        <p className="text-[9px] text-gray-500 mt-5">Date d'acceptation</p>
+                        <p className="text-[9px] text-gray-500 mt-4">Date d'acceptation</p>
                       </div>
                     </div>
                   </div>
