@@ -404,22 +404,15 @@ export default function NewDocumentPage() {
                     </div>
 
                     <div className="col-span-7 flex gap-1">
-         /*             <input
+                      <input
                         type="text"
                         placeholder="Désignation de la prestation"
                         value={item.description}
                         onChange={(e) => updateItem(index, 'description', e.target.value)}
                         className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500"
                       />
-			*/		  
-					  <textarea
-						  rows={2}
-						  placeholder="Désignation de la prestation"
-						  value={item.description}
-						  onChange={(e) => updateItem(index, 'description', e.target.value)}
-						  className="w-full border border-gray-300 rounded p-1.5 text-xs text-gray-900 font-medium outline-none bg-white placeholder-gray-500 resize-y"
-						/>
 					  
+					  					  
                       <button
                         type="button"
                         onClick={() => {
