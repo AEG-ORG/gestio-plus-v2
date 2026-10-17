@@ -348,79 +348,74 @@ export default function NewDocumentPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900 pb-12">
-<style jsx global>{`
-  @media print {
-    @page {
-      size: A4 portrait;
-      margin: 0 !important;
-    }
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0 !important;
+          }
 
-    html, body {
-      width: 210mm !important;
-      height: 297mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      overflow: hidden !important;
-    }
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            overflow: hidden !important;
+          }
 
-    .no-print {
-      display: none !important;
-    }
+          .no-print {
+            display: none !important;
+          }
 
-    #printable-area {
-      display: block !important;
-      position: absolute !important;
-      left: 0 !important;
-      top: 0 !important;
-      width: 210mm !important;
-      height: 297mm !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
+          #printable-area {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
 
-    .a4-page {
-      width: 210mm !important;
-      height: 297mm !important;
-      max-height: 297mm !important;
-      box-sizing: border-box !important;
-      padding: 10mm 15mm 12mm 15mm !important;
-      margin: 0 !important;
-      border: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      outline: none !important;
-      background: #ffffff !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: flex-start !important;
-      overflow: hidden !important;
-      page-break-after: always;
-      page-break-inside: avoid;
-    }
+          .a4-page {
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
+            padding: 12mm 15mm 12mm 15mm !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            outline: none !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
 
-    /* Forcer le pied de page à se positionner juste après les totaux avec un espacement propre */
-    .print-footer {
-      margin-top: 2rem !important;
-    }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
 
-    * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-
-    ::-webkit-scrollbar {
-      display: none !important;
-    }
-  }
-`}</style>
+          ::-webkit-scrollbar {
+            display: none !important;
+          }
+        }
+      `}</style>
 
       {/* HEADER FIXE AVEC SÉLECTEUR DE LANGUE PLACÉ TOUT À DROITE */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm no-print px-4 sm:px-6 lg:px-8 py-3 mb-6">
@@ -790,7 +785,7 @@ export default function NewDocumentPage() {
         </div>
 
 
-        {/* COLONNE DROITE (Aperçu A4) */}
+        {/* COLONNE DROITE (Aperçu A4 au design professionnel et aéré) */}
         <div id="printable-area" className="lg:col-span-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pr-1">
           
           {pages.map((pageItems, pageIndex) => {
@@ -799,108 +794,101 @@ export default function NewDocumentPage() {
             return (
               <div
                 key={pageIndex}
-                className="a4-page bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
+                className="a4-page bg-white p-8 rounded-xl shadow-lg border border-gray-200 text-gray-800 w-full min-h-[842px] flex flex-col justify-between relative overflow-hidden"
               >
                 
-                {/* CORPS PRINCIPAL DU DOCUMENT */}
-                <div className="flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center space-x-3">
-                        {companyLogo ? (
-                          <img src={companyLogo} alt="Logo" className="h-10 w-auto object-contain" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-base" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            G+
-                          </div>
-                        )}
-                        <div>
-                          <span className="font-extrabold text-sm tracking-wide block" style={{ color: '#1e3a8a' }}>{companyName}</span>
-                          {companyAddress && <p className="text-[10px] text-gray-500">{companyAddress}</p>}
+                {/* EN-TÊTE ÉLÉGANT ET DESIGN */}
+                <div>
+                  <div className="flex justify-between items-center pb-5 mb-6 border-b-2 border-blue-900">
+                    <div className="flex items-center space-x-4">
+                      {companyLogo ? (
+                        <img src={companyLogo} alt="Logo" className="h-14 w-auto object-contain" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-xl shadow-md" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          G+
                         </div>
-                      </div>
-
-                      <div className="text-right text-[10px] space-y-0.5 font-semibold" style={{ color: '#1e3a8a' }}>
-                        <p className="font-bold text-xs">{companyName}</p>
-                        <p className="text-gray-500">{companyPhone}</p>
-                        <p className="text-gray-500">{companyWeb}</p>
-                        {totalPages > 1 && (
-                          <p className="font-bold" style={{ color: '#2563eb' }}>{t.page} {pageIndex + 1} / {totalPages}</p>
-                        )}
+                      )}
+                      <div>
+                        <span className="font-black text-lg tracking-wide block uppercase" style={{ color: '#1e3a8a' }}>{companyName}</span>
+                        {companyAddress && <p className="text-xs text-gray-500 whitespace-pre-line mt-0.5">{companyAddress}</p>}
+                        {companyPhone && <p className="text-xs text-gray-500">{companyPhone} — {companyWeb}</p>}
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center my-2 border-b pb-1.5" style={{ borderColor: '#1e3a8a' }}>
-                      <h1 className="text-xl font-black tracking-widest uppercase" style={{ color: '#1e3a8a' }}>
+                    <div className="text-right">
+                      <h1 className="text-3xl font-black tracking-widest uppercase mb-1" style={{ color: '#1e3a8a' }}>
                         {type === 'quote' ? t.quote : t.invoice}
                       </h1>
-                      <div>{getStatusBadge(status)}</div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-xs mb-2 border-b-2 pb-2" style={{ borderColor: '#1e3a8a' }}>
-                      <div className="space-y-0.5">
-                        <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
-                        <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
-                        <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
-                        <p className="font-semibold text-gray-700">{clientCompany}</p>
-                        <p className="whitespace-pre-line text-gray-600 text-[11px]">{clientAddress || 'Adresse client'}</p>
-                      </div>
-                    </div>
-
-                    {pageIndex === 0 && documentDescription && (
-                      <div className="mb-2 text-xs">
-                        <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description}</span>
-                        <span className="text-gray-800">{documentDescription}</span>
-                      </div>
-                    )}
-
-                    {/* TABLEAU AVEC APLATS BLEUS IMPRIMABLES */}
-                    <div className="overflow-hidden rounded-md mb-2 border border-gray-200">
-                      <table className="w-full text-left text-xs table-fixed border-collapse">
-                        <thead>
-                          <tr style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            <th className="py-1.5 px-3 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.descriptionHeader}</th>
-                            <th className="py-1.5 px-2 text-center w-16 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.quantity}</th>
-                            <th className="py-1.5 px-3 text-right w-20 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.unitPrice}</th>
-                            {vatMode === 'per_product' && <th className="py-1.5 px-2 text-right w-14 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.vat}</th>}
-                            <th className="py-1.5 px-3 text-right w-24 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.totalHt}</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 bg-gray-50/50">
-                          {pageItems.map((item, idx) => (
-                            <tr key={idx} className="align-top">
-                              <td className="py-1.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
-                                {item.description || 'Ligne de prestation'}
-                              </td>
-                              <td className="py-1.5 px-2 text-center text-gray-700 whitespace-nowrap">
-                                {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
-                              </td>
-                              <td className="py-1.5 px-3 text-right text-gray-700 whitespace-nowrap">
-                                {item.unit_price.toFixed(2)}€
-                              </td>
-                              {vatMode === 'per_product' && (
-                                <td className="py-1.5 px-2 text-right text-gray-600 whitespace-nowrap">
-                                  {item.vat_rate}%
-                                </td>
-                              )}
-                              <td className="py-1.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
-                                {calculateItemTotalHt(item).toFixed(2)}€
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <div className="inline-block">{getStatusBadge(status)}</div>
                     </div>
                   </div>
 
-                  {/* TOTALS ET APLAT BLEU TOTAL TTC */}
+                  {/* INFORMATIONS DOCUMENT & CLIENT */}
+                  <div className="grid grid-cols-2 gap-6 text-xs mb-6 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
+                    <div className="space-y-1">
+                      <p className="text-gray-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Détails du document</p>
+                      <p><span className="font-bold text-gray-900">{type === 'quote' ? t.quoteNumber : t.invoiceNumber}</span> #{type === 'quote' ? 'DEV' : 'FAC'}-2026-1234</p>
+                      <p><span className="font-bold text-gray-900">{t.date}</span> {currentDate}</p>
+                      <p><span className="font-bold text-gray-900">{t.validUntil}</span> {validUntilDate}</p>
+                    </div>
+
+                    <div className="space-y-1 border-l pl-4 border-gray-200">
+                      <p className="text-gray-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Client facturé</p>
+                      <p className="font-bold text-xs" style={{ color: '#1e3a8a' }}>{clientName || 'Nom Client'}</p>
+                      <p className="font-semibold text-gray-700">{clientCompany}</p>
+                      <p className="whitespace-pre-line text-gray-600 text-[11px] leading-relaxed">{clientAddress || 'Adresse client'}</p>
+                    </div>
+                  </div>
+
+                  {pageIndex === 0 && documentDescription && (
+                    <div className="mb-4 text-xs bg-blue-50/40 p-3 rounded border border-blue-100">
+                      <span className="font-bold uppercase tracking-wider mr-2" style={{ color: '#1e3a8a' }}>{t.description} :</span>
+                      <span className="text-gray-800 font-medium">{documentDescription}</span>
+                    </div>
+                  )}
+
+                  {/* TABLEAU DES ARTICLES */}
+                  <div className="overflow-hidden rounded-lg mb-4 border border-gray-200 shadow-sm">
+                    <table className="w-full text-left text-xs table-fixed border-collapse">
+                      <thead>
+                        <tr style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="py-2.5 px-3 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.descriptionHeader}</th>
+                          <th className="py-2.5 px-2 text-center w-16 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.quantity}</th>
+                          <th className="py-2.5 px-3 text-right w-20 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.unitPrice}</th>
+                          {vatMode === 'per_product' && <th className="py-2.5 px-2 text-right w-14 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.vat}</th>}
+                          <th className="py-2.5 px-3 text-right w-24 font-bold" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{t.totalHt}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {pageItems.map((item, idx) => (
+                          <tr key={idx} className="align-top">
+                            <td className="py-2.5 px-3 text-gray-900 font-medium break-words whitespace-pre-wrap leading-relaxed">
+                              {item.description || 'Ligne de prestation'}
+                            </td>
+                            <td className="py-2.5 px-2 text-center text-gray-700 whitespace-nowrap">
+                              {item.quantity} {item.unit !== 'Unité' ? item.unit : ''}
+                            </td>
+                            <td className="py-2.5 px-3 text-right text-gray-700 whitespace-nowrap">
+                              {item.unit_price.toFixed(2)}€
+                            </td>
+                            {vatMode === 'per_product' && (
+                              <td className="py-2.5 px-2 text-right text-gray-600 whitespace-nowrap">
+                                {item.vat_rate}%
+                              </td>
+                            )}
+                            <td className="py-2.5 px-3 text-right font-semibold text-gray-900 whitespace-nowrap">
+                              {calculateItemTotalHt(item).toFixed(2)}€
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* TOTAUX */}
                   {isLastPage && (
-                    <div className="flex justify-end text-xs my-2">
-                      <div className="w-56 space-y-1">
+                    <div className="flex justify-end text-xs mb-6">
+                      <div className="w-60 space-y-1.5 bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <div className="flex justify-between text-gray-700">
                           <span>{t.totalHt}</span>
                           <span className="font-semibold text-gray-900">{subtotalHt.toFixed(2)}€</span>
@@ -909,7 +897,7 @@ export default function NewDocumentPage() {
                           <span>{t.vat} {vatMode === 'global' ? `${globalVatRate}%` : ''}</span>
                           <span className="font-semibold text-gray-900">{totalVat.toFixed(2)}€</span>
                         </div>
-                        <div className="flex justify-between p-2 rounded font-bold text-sm" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <div className="flex justify-between p-2.5 rounded font-bold text-sm shadow-sm" style={{ backgroundColor: '#1e40af', color: '#ffffff', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           <span>{t.totalTtc}</span>
                           <span>{totalTtc.toFixed(2)}€</span>
                         </div>
@@ -918,26 +906,26 @@ export default function NewDocumentPage() {
                   )}
                 </div>
 
-				{/* PIED DE PAGE : CONDITIONS ET BLOC SIGNATURE */}
-				{isLastPage && (
-				  <div className="print-footer pt-3 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
-					<div className="mb-3">
-					  <span className="font-bold uppercase" style={{ color: '#1e3a8a' }}>{t.conditions}</span>{' '}
-					  {conditions}
-					</div>
+                {/* PIED DE PAGE : CONDITIONS ET SIGNATURE GARANTI DANS LE CADRE */}
+                {isLastPage && (
+                  <div className="pt-3 text-[10px] text-gray-700 shrink-0" style={{ borderTop: '2px solid #1e3a8a' }}>
+                    <div className="mb-3">
+                      <span className="font-bold uppercase tracking-wider" style={{ color: '#1e3a8a' }}>{t.conditions} :</span>{' '}
+                      {conditions}
+                    </div>
 
-					<div className="pt-2 flex justify-around text-center">
-					  <div className="w-36 border-t border-gray-400 pt-1">
-						<p className="font-bold text-gray-900">{t.goodForAgreement}</p>
-						<p className="text-[9px] text-gray-500 mt-4">{t.signatureClient}</p>
-					  </div>
-					  <div className="w-36 border-t border-gray-400 pt-1">
-						<p className="font-bold text-gray-900">DATE</p>
-						<p className="text-[9px] text-gray-500 mt-4">{t.dateAcceptance}</p>
-					  </div>
-					</div>
-				  </div>
-				)}
+                    <div className="pt-2 flex justify-around text-center">
+                      <div className="w-40 border-t border-gray-400 pt-1.5">
+                        <p className="font-bold text-gray-900 uppercase text-[9px]">{t.goodForAgreement}</p>
+                        <p className="text-[9px] text-gray-400 mt-6">{t.signatureClient}</p>
+                      </div>
+                      <div className="w-40 border-t border-gray-400 pt-1.5">
+                        <p className="font-bold text-gray-900 uppercase text-[9px]">Date</p>
+                        <p className="text-[9px] text-gray-400 mt-6">{t.dateAcceptance}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </div>
             )
